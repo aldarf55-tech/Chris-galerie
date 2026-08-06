@@ -4,7 +4,6 @@ export const Footer = () => {
   return (
     <footer className={styles.footer}>
       <div className={styles.social}>
-          <h2>Retrouvez moi sur Instagram</h2>
               <a href="https://www.instagram.com/christophevergnet/" target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
                 <svg className={styles.buttonIcon}
                 width="20"
@@ -26,7 +25,6 @@ export const Footer = () => {
         </div>
 
         <div className={styles.social}>
-          <h2>Contactez-moi</h2>
               <a href="mailto:votre.adresse@email.com?subject=Demande%20d'information" className={styles.mailLink}>
                 <svg 
                   width="20" 

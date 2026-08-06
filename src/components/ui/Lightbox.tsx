@@ -60,7 +60,6 @@ export const Lightbox = ({ artworksList, currentIndex, setCurrentIndex, onClose 
         <div className={styles.info}>
           <h3>{artwork.thematique}</h3>
           <h5>{artwork.technique}</h5>
-          <p>{artwork.price} €</p>
         </div>
       </div>
 
