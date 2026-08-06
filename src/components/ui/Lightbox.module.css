@@ -1,51 +1,87 @@
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgba(0, 0, 0, 0.92);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  padding: 2rem;
-  backdrop-filter: blur(4px); /* Léger flou en arrière-plan */
+  padding: 1rem;
+  box-sizing: border-box;
+  backdrop-filter: blur(4px);
+  overflow: hidden;
 }
 
+/* Bouton de fermeture */
 .closeBtn {
   position: absolute;
-  top: 1.5rem;
-  right: 2rem;
+  top: 1rem;
+  right: 1.5rem;
   background: none;
   border: none;
   color: #fff;
-  font-size: 3rem;
+  font-size: 2.5rem;
   cursor: pointer;
+  z-index: 1020;
   transition: transform 0.2s ease;
+  line-height: 1;
 }
 
 .closeBtn:hover {
   transform: scale(1.1);
 }
 
+/* Boutons de navigation (précédent / suivant) */
+.navBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.55);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 1.5rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1010;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.navBtn:hover {
+  background: rgba(208, 110, 45, 0.8);
+}
+
+.prevBtn {
+  left: 1rem;
+}
+
+.nextBtn {
+  right: 1rem; /* Bien ancré à droite */
+}
+
 /* Conteneur principal de la Lightbox */
 .content {
   position: relative;
   display: flex;
-  flex-direction: column; /* Alignement vertical : image en haut, infos en bas */
+  flex-direction: column;
   align-items: center;
-  padding: 1.5rem;
-  border-radius: 12px;
-  max-width: 90vw;
-  max-height: 90vh;
+  padding: 1rem;
+  max-width: 80vw; /* Réduit à 80vw pour laisser de la place aux flèches de chaque côté */
+  max-height: 85vh;
   box-sizing: border-box;
+  z-index: 1005;
 }
 
 /* L'image s'ajuste pour réserver de la place aux infos sous elle */
 .image {
   max-width: 100%;
-  max-height: 70vh; /* Limite la hauteur de l'image pour que .info ne soit pas poussé hors de l'écran */
+  max-height: 65vh; /* Limite la hauteur de l'image pour que .info ne soit pas poussé hors de l'écran */
   width: auto;
   height: auto;
   object-fit: contain;
@@ -55,12 +91,10 @@
 
 /* Le bloc d'informations : placé sous l'image, toujours visible */
 .info {
-  position: static; /* Annule la position absolue */
   width: 100%;
   margin-top: 1rem;
   text-align: center;
   color: #ffffff;
-  opacity: 1; /* Toujours visible */
 }
 
 .info h3 {
@@ -80,4 +114,41 @@
   font-size: 0.9rem;
   opacity: 0.8;
   color: #1e466e;
+}
+
+/* Adaptations spécifiques aux smartphones */
+@media (max-width: 768px) {
+  .overlay {
+    padding: 0.5rem;
+  }
+
+  .content {
+    max-width: 82vw; /* Ajusté pour laisser les flèches visibles sans rogner l'image */
+    padding: 0.5rem;
+  }
+
+  .image {
+    max-height: 60vh;
+  }
+
+  .navBtn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    background: rgba(0, 0, 0, 0.7); /* Contraste accru sur petit écran */
+  }
+
+  .prevBtn {
+    left: 0.4rem;
+  }
+
+  .nextBtn {
+    right: 0.4rem;
+  }
+
+  .closeBtn {
+    top: 0.75rem;
+    right: 1rem;
+    font-size: 2.2rem;
+  }
 }

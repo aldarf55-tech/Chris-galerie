@@ -11,12 +11,14 @@
   margin-bottom: 2rem;
 }
 
-/* Filtres */
+/* Filtres - Desktop */
 .filters {
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  margin-bottom: 3rem;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap; /* Sur grand écran, ils s'alignent proprement */
 }
 
 .filterBtn {
@@ -26,13 +28,43 @@
   background: transparent;
   cursor: pointer;
   border-radius: 20px;
+  font-size: 0.95rem;
+  white-space: nowrap; /* Indispensable pour éviter que le texte du bouton se coupe */
   transition: all 0.3s ease;
+  flex-shrink: 0; /* Empêche les boutons de s'écraser */
 }
 
 .filterBtn.active, .filterBtn:hover {
   background: #1e466e;
   color: #d06e2d;
   border-color: #1e466e;
+}
+
+/* Adaptations spécifiques Smartphone */
+@media (max-width: 768px) {
+  .filters {
+    justify-content: flex-start; /* Aligne le premier bouton au bord gauche */
+    flex-wrap: nowrap; /* Interdit le retour à la ligne */
+    overflow-x: auto; /* Active le scroll horizontal */
+    padding: 0.5rem 1rem 1rem 1rem; /* Marge interne pour le confort de défilement */
+    margin-bottom: 1.5rem;
+    -webkit-overflow-scrolling: touch; /* Défilement ultra-fluide sur iOS */
+    scroll-snap-type: x mandatory; /* Effet d'aimant au défilement */
+    
+    /* Masquer la barre de scroll sur tous les navigateurs */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  .filters::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  .filterBtn {
+    scroll-snap-align: start;
+    padding: 0.4rem 1rem;
+    font-size: 0.88rem;
+  }
 }
 
 /* Grille CSS Grid responsive */
