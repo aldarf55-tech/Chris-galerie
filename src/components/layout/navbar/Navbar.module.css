@@ -1,0 +1,71 @@
+.navList {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navLink {
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.navLink a {
+  text-decoration: none;
+  color: #1e466e;
+}
+
+/* Effet de ligne qui apparaît sous le lien */
+.navLink::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: #d06e2d;
+  transition: width 0.3s ease;
+}
+
+.navLink:hover::after {
+  width: 100%;
+}
+
+
+/* --- VERSION MOBILE --- */
+.hamburger {
+  display: none; /* Caché sur desktop */
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.hamburger span {
+  width: 25px;
+  height: 3px;
+  background: #333;
+}
+
+@media (max-width: 768px) {
+  .hamburger { display: flex; }
+
+  .navList {
+    display: none; /* Caché par défaut sur mobile */
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background: white;
+    padding: 1rem 0;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+  }
+
+  .menuOpen {
+    display: flex; /* Affiche le menu quand isOpen est true */
+  }
+}

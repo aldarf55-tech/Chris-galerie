@@ -1,0 +1,43 @@
+.footer {
+  /* Design */
+  display: flex;
+  justify-content: space-between; /* Espace le logo des liens */
+  align-items: center;
+  padding: 1rem 5%; /* Padding relatif à la largeur d'écran */
+  background-color: var(--bg); /* Effet léger de transparence */
+  backdrop-filter: blur(10px); /* Flou derrière le header (effet moderne) */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.socialLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Espace entre l'icône et le texte */
+  text-decoration: none;
+  color: inherit;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.socialLink:hover {
+  color: #e1306c; /* Couleur officielle d'Instagram au survol */
+}
+
+.buttonIcon {
+  display: block;
+}
+
+.mailLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Espace entre l'icône et le texte */
+  text-decoration: none;
+  color: inherit;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.mailLink:hover {
+  color: #d06e2d; /* Couleur personnalisée au survol */
+}

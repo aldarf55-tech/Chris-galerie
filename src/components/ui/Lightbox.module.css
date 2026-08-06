@@ -1,0 +1,83 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 2rem;
+  backdrop-filter: blur(4px); /* Léger flou en arrière-plan */
+}
+
+.closeBtn {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 3rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.closeBtn:hover {
+  transform: scale(1.1);
+}
+
+/* Conteneur principal de la Lightbox */
+.content {
+  position: relative;
+  display: flex;
+  flex-direction: column; /* Alignement vertical : image en haut, infos en bas */
+  align-items: center;
+  padding: 1.5rem;
+  border-radius: 12px;
+  max-width: 90vw;
+  max-height: 90vh;
+  box-sizing: border-box;
+}
+
+/* L'image s'ajuste pour réserver de la place aux infos sous elle */
+.image {
+  max-width: 100%;
+  max-height: 70vh; /* Limite la hauteur de l'image pour que .info ne soit pas poussé hors de l'écran */
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 6px;
+  display: block;
+}
+
+/* Le bloc d'informations : placé sous l'image, toujours visible */
+.info {
+  position: static; /* Annule la position absolue */
+  width: 100%;
+  margin-top: 1rem;
+  text-align: center;
+  color: #ffffff;
+  opacity: 1; /* Toujours visible */
+}
+
+.info h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.2rem;
+  color: #d06e2d;
+}
+
+.info h5 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.1rem;
+  color: #ffffff;
+}
+
+.info p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  color: #1e466e;
+}
