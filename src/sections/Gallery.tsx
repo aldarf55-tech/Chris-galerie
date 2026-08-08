@@ -16,7 +16,7 @@ interface Artwork {
 export const Gallery = () => {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('Tous');
+  const [filter, setFilter] = useState('TOUT');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
  // Charger les œuvres depuis Supabase au chargement du composant
@@ -43,9 +43,9 @@ export const Gallery = () => {
 
   // Gestion des catégories basée sur 'thematique'
   
-  const categories = ['Tous', ...new Set(artworks.map(art => art.category || art.thematique))];
+  const categories = ['TOUT', ...new Set(artworks.map(art => art.category || art.thematique))];
 
-  const filteredArtworks = filter === 'Tous' 
+  const filteredArtworks = filter === 'TOUT' 
     ? artworks 
     : artworks.filter(art => (art.category || art.thematique) === filter);
 
