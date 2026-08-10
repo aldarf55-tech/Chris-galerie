@@ -35,10 +35,10 @@ export const Navbar = ({ onViewChange }: NavbarProps) => {
             href="#" 
             onClick={(e) => { 
               e.preventDefault(); 
-              handleNavigation('gallery'); 
+              handleNavigation('ACTU'); 
             }}
           >
-            Galerie
+            ACTU
           </a>
         </li>
         <li className={styles.navLink}>
@@ -46,10 +46,21 @@ export const Navbar = ({ onViewChange }: NavbarProps) => {
             href="#" 
             onClick={(e) => { 
               e.preventDefault(); 
-              handleNavigation('about'); 
+              handleNavigation('GALLERIE'); 
             }}
           >
-            À propos
+            GALERIE
+          </a>
+        </li>
+        <li className={styles.navLink}>
+          <a 
+            href="#" 
+            onClick={(e) => { 
+              e.preventDefault(); 
+              handleNavigation('ABOUT'); 
+            }}
+          >
+            À PROPOS
           </a>
         </li>
       </ul>

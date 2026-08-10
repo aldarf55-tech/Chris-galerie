@@ -11,7 +11,7 @@ export const Header = ({ onViewChange }: HeaderProps) => {
   return (
     <header className={styles.header}>
       {/* Cliquer sur le logo ramène à la Galerie (au lieu d'un rechargement de page complet) */}
-      <div className={styles.headerlogo} onClick={() => onViewChange('gallery')}>
+      <div className={styles.headerlogo} onClick={() => onViewChange('GALLERIE')}>
         <img src={logoImg} alt="Logo" />
       </div>
 
@@ -19,7 +19,7 @@ export const Header = ({ onViewChange }: HeaderProps) => {
       <Navbar onViewChange={onViewChange} />
 
       {/* Le bouton Admin active la vue 'admin' */}
-      <button className={styles.cta} onClick={() => onViewChange('admin')}>
+      <button className={styles.cta} onClick={() => onViewChange('ADMIN')}>
         Admin
       </button>
     </header>

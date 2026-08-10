@@ -5,21 +5,23 @@ import { AdminUpload } from './components/ui/AdminUpload.tsx';
 import { Footer } from './components/layout/Footer/Footer.tsx';
 import { Gallery } from './sections/Gallery.tsx';
 import { About } from './sections/About.tsx';
+import { Actu } from './sections/Actu.tsx';
 
 // Type pour sécuriser les noms de vues possibles
-export type ViewType = 'gallery' | 'admin' | 'about';
+export type ViewType = 'GALLERIE' | 'ADMIN' | 'ABOUT' | 'ACTU';
 
 function App() {
-  const [currentView, setCurrentView] = useState<ViewType>('gallery');
+  const [currentView, setCurrentView] = useState<ViewType>('ACTU');
 
   return (
     <>
       <Header onViewChange={setCurrentView} />
       
       <main id="center">
-        {currentView === 'gallery' && <Gallery />}
-        {currentView === 'about' && <About />}
-        {currentView === 'admin' && <AdminUpload />}
+        {currentView === 'GALLERIE' && <Gallery />}
+        {currentView === 'ABOUT' && <About />}
+        {currentView === 'ADMIN' && <AdminUpload />}
+        {currentView === 'ACTU' && <Actu />}
       </main>
 
      <Footer/>
