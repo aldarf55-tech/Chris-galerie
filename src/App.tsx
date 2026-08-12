@@ -24,7 +24,7 @@ function App() {
         {currentView === 'ACTU' && <Actu />}
       </main>
 
-     <Footer/>
+     <Footer onViewChange={setCurrentView} />
     </>
   );
 }

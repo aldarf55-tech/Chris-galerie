@@ -1,6 +1,11 @@
 import styles from './Footer.module.css';
+import type { ViewType } from '../../../App.tsx';
 
-export const Footer = () => {
+interface FooterProps {
+  onViewChange: (view: ViewType) => void;
+}
+
+export const Footer = ({ onViewChange }: FooterProps) => {
   return (
     <footer className={styles.footer}>
       <div className={styles.social}>
@@ -44,7 +49,18 @@ export const Footer = () => {
                 Mail
               </a>
         </div>
-      <p>&copy; 2026 MonProjet. Tous droits réservés. Mk.</p>
+
+        <p className={styles.copyright}>
+          <span 
+            className={styles.secretAdminTrigger} 
+            onClick={() => onViewChange('ADMIN')}
+            title="Espace administration"
+          >
+            ©
+          </span>{' '}
+          2026 Mon Projet Tous droits réservés.
+        </p>
+
     </footer>
   );
 };

@@ -19,7 +19,7 @@ export const Navbar = ({ onViewChange }: NavbarProps) => {
     <nav className={styles.navbar}>
       {/* Bouton Hamburger - visible uniquement sur mobile */}
       <button 
-        className={styles.hamburger}  
+        className={`${styles.hamburger} ${isOpen ? styles.hamburgerOpen : ''}`}  
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle navigation menu"
       >
@@ -27,6 +27,14 @@ export const Navbar = ({ onViewChange }: NavbarProps) => {
         <span></span>
         <span></span>
       </button>
+
+      {/* Overlay sombre en arrière-plan sur mobile quand le menu est ouvert */}
+      {isOpen && (
+        <div 
+          className={styles.overlay} 
+          onClick={() => setIsOpen(false)} 
+        />
+      )}
 
       {/* Liste des liens */}
       <ul className={`${styles.navList} ${isOpen ? styles.menuOpen : ''}`}>

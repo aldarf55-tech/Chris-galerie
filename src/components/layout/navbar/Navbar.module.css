@@ -1,9 +1,14 @@
+.navbar {
+  position: relative;
+}
+
 .navList {
   display: flex;
   gap: 2rem;
   list-style: none;
   margin: 0;
   padding: 0;
+  align-items: center;
 }
 
 .navLink {
@@ -15,9 +20,10 @@
 .navLink a {
   text-decoration: none;
   color: #1e466e;
+  font-size: 1rem;
 }
 
-/* Effet de ligne qui apparaît sous le lien */
+/* Effet de ligne qui apparaît sous le lien (Desktop) */
 .navLink::after {
   content: '';
   position: absolute;
@@ -34,38 +40,96 @@
 }
 
 
-/* --- VERSION MOBILE --- */
+/* --- BOUTON HAMBURGER --- */
 .hamburger {
   display: none; /* Caché sur desktop */
   flex-direction: column;
-  gap: 5px;
+  justify-content: space-between;
+  width: 28px;
+  height: 20px;
   background: none;
   border: none;
   cursor: pointer;
+  padding: 0;
+  z-index: 1001; /* Reste au-dessus de l'overlay */
 }
 
 .hamburger span {
-  width: 25px;
+  width: 100%;
   height: 3px;
-  background: #333;
+  background: #1e466e;
+  border-radius: 2px;
+  transition: all 0.3s ease-in-out;
 }
 
-@media (max-width: 768px) {
-  .hamburger { display: flex; }
+/* Animation des barres en "X" à l'ouverture */
+.hamburgerOpen span:nth-child(1) {
+  transform: translateY(8.5px) rotate(45deg);
+}
 
-  .navList {
-    display: none; /* Caché par défaut sur mobile */
-    flex-direction: column;
-    position: absolute;
-    top: 60px;
-    left: 0;
-    width: 100%;
-    background: white;
-    padding: 1rem 0;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+.hamburgerOpen span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburgerOpen span:nth-child(3) {
+  transform: translateY(-8.5px) rotate(-45deg);
+}
+
+
+/* --- ADAPTATION MOBILE --- */
+@media (max-width: 768px) {
+  .hamburger { 
+    display: flex; 
   }
 
+  .navList {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: -100%; /* Sorti de l'écran à droite par défaut */
+    width: 30vw;
+    height: 100vh;
+    background: #ebead6;
+    padding: 80px 24px 24px;
+    gap: 1.5rem;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease-in-out; /* Animation glissante fluide */
+    z-index: 1000;
+  }
+
+  /* Glissement du menu depuis la droite quand ouvert */
   .menuOpen {
-    display: flex; /* Affiche le menu quand isOpen est true */
+    right: 0;
+  }
+
+  .navLink {
+    width: 100%;
+  }
+
+  .navLink a {
+    display: block;
+    width: 100%;
+    padding: 12px 0; /* Zone de clic plus grande pour le pouce */
+    font-size: 1.15rem;
+    font-weight: 600;
+    border-bottom: 1px solid #d06e2d;
+  }
+
+  /* Désactive la barre sous le lien sur mobile pour préférer un effet épuré */
+  .navLink::after {
+    display: none;
+  }
+
+  /* Couche d'ombrage en arrière-plan */
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px); /* Flou discret en fond */
+    z-index: 999;
   }
 }
