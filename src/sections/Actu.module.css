@@ -9,18 +9,11 @@
 /* Grille CSS Grid responsive */
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(250px, 320px));
+  grid-template-columns: repeat(2, minmax(140px, 320px));
   justify-content: center;
   align-items: center;
   gap: 1rem;
   width: 100%;
-}
-
-/* Ajustement pour garder le centrage propre sur mobile si l'écran passe sous ~600px */
-@media (max-width: 600px) {
-  .grid {
-    grid-template-columns: minmax(250px, 320px); /* Passe sur 1 seule colonne centrée */
-  }
 }
 
 /* Cartes des dessins */
@@ -67,13 +60,14 @@
 
 .overlay h3 {
   margin: 0 0 0.25rem 0;
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #d06e2d;
 }
 
 .overlay h5 {
   margin: 0 0 0.25rem 0;
-  font-size: 1rem;
+  font-size: 0.5rem;
+  line-height: 0.5rem;
   color: #ffffff;
 }
 

@@ -75,6 +75,7 @@ export const Actu = () => {
       {/* Affichage du texte dynamique de Supabase */}
       {introText && <p className={styles.introText}>{introText}</p>}
 
+      <h2>DERNIERES ŒUVRES</h2>
       {/* Affichage pendant le chargement */}
       {loading ? (
         <p style={{ textAlign: 'center', padding: '40px' }}>Chargement des 2 dernières œuvres...</p>
