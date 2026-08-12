@@ -3,19 +3,12 @@
   max-width: 1126px;
   margin: 0 auto;
   min-height: 100vh;
-  min-height: 100dvh; /* Gère la barre d'adresse mobile */
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;      /* S'étire si #root est plus grand */
-  box-sizing: border-box;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
 }
 
 .mainContent {
-  flex: 1 0 auto; /* Force le main à occuper tout l'espace disponible */
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  box-sizing: border-box;
+ width: 100%;
+  height: 100%;
 }

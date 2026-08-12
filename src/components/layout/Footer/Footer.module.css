@@ -9,6 +9,8 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease;
   margin-top: auto; /* Pousse le footer vers le bas */
+  box-sizing: border-box;
+  margin-bottom: 0 !important; /* Bloque tout débordement sous Firefox */
 }
 
 .socialLink {
@@ -62,3 +64,9 @@
 .secretAdminTrigger:hover {
   color: #ffffff;
 } 
+
+/* Sécurité pour tous les paragraphes/textes dans le footer */
+.footer p, 
+.footer div {
+  margin-bottom: 0;
+}
