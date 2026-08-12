@@ -96,11 +96,13 @@
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
     transition: right 0.3s ease-in-out; /* Animation glissante fluide */
     z-index: 1000;
+    visibility: hidden; /* Masqué par défaut pour éviter les clics */
   }
 
   /* Glissement du menu depuis la droite quand ouvert */
   .menuOpen {
     right: 0;
+    visibility: visible; /* Rendre le menu cliquable */
   }
 
   .navLink {
