@@ -128,3 +128,46 @@
   font-size: 1rem;
   color: #ffffff;
 }
+
+/* Barre de recherche - Conteneur & Input */
+.searchContainer {
+  max-width: 400px;
+  margin: 0 auto 1.5rem auto;
+  padding: 0 1rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.65rem 1.25rem;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  outline: none;
+  background-color: #ffffff;
+  color: #1e466e;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.searchInput:focus {
+  border-color: #1e466e;
+  box-shadow: 0 0 0 3px rgba(30, 70, 110, 0.15);
+}
+
+.searchInput::placeholder {
+  color: #9ca3af;
+}
+
+/* Adaptation Smartphone pour le champ de recherche */
+@media (max-width: 768px) {
+  .searchContainer {
+    max-width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .searchInput {
+    padding: 0.55rem 1rem;
+    font-size: 0.88rem;
+  }
+}

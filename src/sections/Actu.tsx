@@ -15,36 +15,66 @@ interface Artwork {
 
 export const Actu = () => {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [introText, setIntroText] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
-  // Charger les 2 dernières œuvres depuis Supabase
+  // Charger le texte et les 2 dernières œuvres depuis Supabase
   useEffect(() => {
-    fetchLatestArtworks();
+    fetchData();
   }, []);
 
-  const fetchLatestArtworks = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('artworks')
-        .select('*')
-        .order('id', { ascending: false }) // Les plus récentes d'abord
-        .limit(2); // Récupère uniquement les 2 dernières œuvres
 
-      if (error) throw error;
-      if (data) setArtworks(data);
+      // Exécution en parallèle de la récupération du texte et des œuvres
+      await Promise.all([
+        fetchIntroText(),
+        fetchLatestArtworks()
+      ]);
+
     } catch (error: any) {
-      console.error("Erreur lors de la récupération des œuvres :", error.message);
+      console.error("Erreur globale lors du chargement :", error.message);
     } finally {
       setLoading(false);
     }
   };
 
+  // Récupère le texte depuis la table actu (clé: 'actu_intro')
+  const fetchIntroText = async () => {
+    const { data, error } = await supabase
+      .from('actu')
+      .select('value')
+      .eq('key', 'actu_intro')
+      .maybeSingle();
+
+    if (error) {
+      console.error("Erreur lors de la récupération du texte ACTU :", error.message);
+    } else if (data) {
+      setIntroText(data.value);
+    }
+  };
+
+  // Récupère les 2 dernières œuvres
+  const fetchLatestArtworks = async () => {
+    const { data, error } = await supabase
+      .from('artworks')
+      .select('*')
+      .order('id', { ascending: false })
+      .limit(2);
+
+    if (error) throw error;
+    if (data) setArtworks(data);
+  };
+
   return (
     <section className={styles.actuSection}>
       <h2>ACTU</h2>
-            <p>Bienvenue sur la galerie d'art Christogr@phik. Découvrez mes dernières créations et projets artistiques.</p>
+      
+      {/* Affichage du texte dynamique de Supabase */}
+      {introText && <p className={styles.introText}>{introText}</p>}
+
       {/* Affichage pendant le chargement */}
       {loading ? (
         <p style={{ textAlign: 'center', padding: '40px' }}>Chargement des 2 dernières œuvres...</p>

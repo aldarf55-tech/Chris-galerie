@@ -1,25 +1,24 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient'; // Ajustez le chemin vers votre client Supabase si besoin
+import { supabase } from '../supabaseClient';
 import { Lightbox } from '../components/ui/Lightbox';
 import styles from './Gallery.module.css';
 
-// Interface représentant la structure d'une œuvre dans Supabase
 interface Artwork {
   id: number | string;
   thematique: string;
   technique: string;
   price: number;
   image_url: string;
-  category?: string; // Optionnel si vous gérez des catégories
+  category?: string;
 }
 
 export const Gallery = () => {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('TOUT');
+  const [searchQuery, setSearchQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
- // Charger les œuvres depuis Supabase au chargement du composant
   useEffect(() => {
     fetchArtworks();
   }, []);
@@ -30,7 +29,7 @@ export const Gallery = () => {
       const { data, error } = await supabase
         .from('artworks')
         .select('*')
-        .order('id', { ascending: false }); // Optionnel : affiche les plus récentes en premier
+        .order('id', { ascending: false });
 
       if (error) throw error;
       if (data) setArtworks(data);
@@ -41,19 +40,26 @@ export const Gallery = () => {
     }
   };
 
-  // Gestion des catégories basée sur 'thematique'
-  
   const categories = ['TOUT', ...new Set(artworks.map(art => art.category || art.thematique))];
 
-  const filteredArtworks = filter === 'TOUT' 
-    ? artworks 
-    : artworks.filter(art => (art.category || art.thematique) === filter);
+  // FILTRAGE COMBINÉ : Catégorie + Recherche textuelle
+  const filteredArtworks = artworks.filter(art => {
+    const categoryMatch = filter === 'TOUT' || (art.category || art.thematique) === filter;
+    
+    const query = searchQuery.toLowerCase().trim();
+    const searchMatch = query === '' || 
+      art.thematique.toLowerCase().includes(query) ||
+      art.technique.toLowerCase().includes(query) ||
+      (art.category && art.category.toLowerCase().includes(query));
+
+    return categoryMatch && searchMatch;
+  });
 
   if (loading) {
     return (
       <section className={styles.gallerySection}>
         <h2 className={styles.title}>Mes Créations</h2>
-        <p style={{ textAlign: 'center', padding: '40px' }}>Chargement des œuvres...</p>
+        <p className={styles.statusMessage}>Chargement des œuvres...</p>
       </section>
     );
   }
@@ -62,38 +68,52 @@ export const Gallery = () => {
     <section className={styles.gallerySection}>
       <h1 className={styles.title}>GALERIE</h1>
 
-      {/* Barre de filtres (affichée s'il y a des éléments) */}
       {artworks.length > 0 && (
-        <div className={styles.filters}>
-          {categories.map(cat => (
-            <button 
-              key={cat} 
-              className={`${styles.filterBtn} ${filter === cat ? styles.active : ''}`}
-              onClick={() => setFilter(cat)}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        <>
+          {/* BARRE DE RECHERCHE */}
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              placeholder="Rechercher un personnage, une technique..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
+
+          {/* BARRE DE FILTRES */}
+          <div className={styles.filters}>
+            {categories.map(cat => (
+              <button 
+                key={cat} 
+                className={`${styles.filterBtn} ${filter === cat ? styles.active : ''}`}
+                onClick={() => setFilter(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </>
       )}
 
-      {/* Message si la galerie est vide */}
+      {/* RÉSULTATS DE LA GALERIE */}
       {artworks.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#6b7280', padding: '40px' }}>
+        <p className={styles.statusMessage}>
           Aucune œuvre pour le moment. Connectez-vous à l'espace admin pour en ajouter !
         </p>
+      ) : filteredArtworks.length === 0 ? (
+        <p className={styles.statusMessage}>
+          Aucun dessin ne correspond à votre recherche "{searchQuery}".
+        </p>
       ) : (
-        /* Grille d'images */
         <div className={styles.grid}>
           {filteredArtworks.map((art, index) => (
             <div 
               key={art.id} 
               className={styles.card}
               onClick={() => setActiveIndex(index)}
-              style={{ cursor: 'pointer' }}
             >
               <div className={styles.imageWrapper}>
-                {/* On utilise art.image_url comme enregistré par le formulaire d'upload */}
                 <img src={art.image_url} alt={art.thematique} className={styles.image} />
               </div>
               <div className={styles.overlay}>
@@ -105,7 +125,7 @@ export const Gallery = () => {
         </div>
       )}
 
-      {/* Affichage conditionnel de la Lightbox */}
+      {/* LIGHTBOX */}
       {activeIndex !== null && (
         <Lightbox 
           artworksList={filteredArtworks}

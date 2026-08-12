@@ -8,6 +8,18 @@
   font-family: sans-serif;
 }
 
+.admin-logout-btn {
+  background-color: #ef4444;
+  color: white;
+  font-weight: 500;
+  padding: 10px 16px;
+  margin-bottom: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
 .admin-title {
   font-size: 1.5rem;
   font-weight: bold;
@@ -75,4 +87,157 @@
 .admin-button:disabled {
   background-color: #9ca3af;
   cursor: not-allowed;
+}
+
+/* --- GRILLE DE LA GALERIE ADMIN --- */
+.admin-artworks-grid {
+  display: grid;
+  /* 2 colonnes égales par défaut (mobile compris) */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Sur écran plus large (tablette/desktop), passe à 3 ou 4 colonnes */
+@media (min-width: 768px) {
+  .admin-artworks-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+  }
+}
+
+/* CARTE INDIVIDUELLE */
+.admin-artwork-item {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* IMAGE RETAIN RATIO ET S'ADAPTE */
+.admin-artwork-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Force un format carré propre pour la grille */
+  object-fit: cover;
+}
+
+/* INFORMATIONS DE L'ŒUVRE */
+.admin-artwork-info {
+  padding: 8px;
+  flex-grow: 1;
+}
+
+.admin-artwork-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Tronque le texte long avec "..." */
+}
+
+.admin-artwork-info p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
+/* BOUTONS ACTIONS SUR MOBILE */
+.admin-item-buttons {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  background-color: #f9fafb;
+  border-top: 1px solid #f3f4f6;
+}
+
+.admin-edit-btn,
+.admin-delete-btn {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.admin-edit-btn {
+  background-color: #2563eb;
+  color: white;
+}
+
+.admin-delete-btn {
+  background-color: #dc2626;
+  color: white;
+}
+
+/* OPTIMISATION COMPACTE SUR PETITS ÉCRANS (< 480px) */
+@media (max-width: 480px) {
+  .admin-artworks-grid {
+    gap: 8px;
+  }
+  
+  .admin-artwork-info {
+    padding: 6px;
+  }
+
+  .admin-artwork-info h4 {
+    font-size: 0.8rem;
+  }
+
+  .admin-artwork-info p {
+    font-size: 0.7rem;
+  }
+
+  .admin-item-buttons {
+    flex-direction: column; /* Pile les 2 boutons l'un sous l'autre si l'écran est très étroit */
+    gap: 4px;
+    padding: 6px;
+  }
+
+  .admin-edit-btn,
+  .admin-delete-btn {
+    padding: 4px 0;
+    font-size: 0.7rem;
+  }
+}
+
+/* CONTAINER DES ONGLETS */
+.admin-tabs {
+  display: flex;
+  gap: 10px; /* Espace entre chaque bouton */
+  margin-bottom: 20px;
+  flex-wrap: wrap; /* Évite que les boutons ne dépassent sur petit écran */
+}
+
+/* STYLE DES BOUTONS D'ONGLETS */
+.admin-tab-btn {
+  flex: 1; /* Distribue l'espace de manière égale entre les boutons */
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.admin-tab-btn:hover {
+  background-color: #e5e7eb;
+}
+
+/* ÉTAT ACTIF DE L'ONGLET SÉLECTIONNÉ */
+.admin-tab-btn.active {
+  background-color: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
 }
