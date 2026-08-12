@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
-import './AdminUpload.css'; // Utilisation de votre fichier CSS existant
+import './AdminUpload.css';
 
 interface Artwork {
   id: number | string;
+  title: string;
   thematique: string;
   technique: string;
   price: number;
+  category?: string;
   image_url: string;
+  is_original_available: boolean;
+  is_print_available: boolean;
 }
 
 export function AdminUpload() {
@@ -18,9 +22,12 @@ export function AdminUpload() {
   const [activeTab, setActiveTab] = useState<'add' | 'list' | 'actu'>('add');
 
   // CHAMPS DU FORMULAIRE D'AJOUT
+  const [title, setTitle] = useState('');
   const [thematique, setThematique] = useState('');
   const [technique, setTechnique] = useState('');
   const [price, setPrice] = useState('');
+  const [isOriginalAvailable, setIsOriginalAvailable] = useState(true);
+  const [isPrintAvailable, setIsPrintAvailable] = useState(true);
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -65,7 +72,6 @@ export function AdminUpload() {
     await supabase.auth.signOut();
   };
 
-  // RÉCUPÉRATION DES ŒUVRES
   const fetchArtworks = async () => {
     setLoadingArtworks(true);
     const { data, error } = await supabase
@@ -77,7 +83,6 @@ export function AdminUpload() {
     setLoadingArtworks(false);
   };
 
-  // RÉCUPÉRATION DU TEXTE ACTU DEPUIS SUPABASE
   const fetchActuText = async () => {
     setLoadingActu(true);
     const { data, error } = await supabase
@@ -94,7 +99,6 @@ export function AdminUpload() {
     setLoadingActu(false);
   };
 
-  // ENREGISTREMENT DU TEXTE ACTU DANS SUPABASE
   const handleSaveActuText = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingActu(true);
@@ -111,7 +115,6 @@ export function AdminUpload() {
     setSavingActu(false);
   };
 
-  // UPLOAD NOUVELLE ŒUVRE
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return alert('Veuillez sélectionner une image.');
@@ -133,19 +136,25 @@ export function AdminUpload() {
 
       const { error: dbError } = await supabase.from('artworks').insert([
         {
+          title,
           thematique,
           technique,
           price: parseFloat(price),
           image_url: publicURLData.publicUrl,
+          is_original_available: isOriginalAvailable,
+          is_print_available: isPrintAvailable,
         },
       ]);
 
       if (dbError) throw dbError;
 
       alert('Œuvre ajoutée avec succès !');
+      setTitle('');
       setThematique('');
       setTechnique('');
       setPrice('');
+      setIsOriginalAvailable(true);
+      setIsPrintAvailable(true);
       setFile(null);
       const fileInput = document.getElementById('file-input') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
@@ -157,7 +166,6 @@ export function AdminUpload() {
     }
   };
 
-  // MODIFICATION DE L'ŒUVRE
   const handleUpdateArtwork = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingArtwork) return;
@@ -165,9 +173,12 @@ export function AdminUpload() {
     const { error } = await supabase
       .from('artworks')
       .update({
+        title: editingArtwork.title,
         thematique: editingArtwork.thematique,
         technique: editingArtwork.technique,
         price: editingArtwork.price,
+        is_original_available: editingArtwork.is_original_available,
+        is_print_available: editingArtwork.is_print_available,
       })
       .eq('id', editingArtwork.id);
 
@@ -180,7 +191,6 @@ export function AdminUpload() {
     }
   };
 
-  // SUPPRESSION DE L'ŒUVRE
   const handleDeleteArtwork = async (id: number | string, imageUrl: string) => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette œuvre ?")) return;
 
@@ -242,7 +252,6 @@ export function AdminUpload() {
         </button>
       </div>
 
-      {/* Navigation entre Onglets */}
       <div className="admin-tabs">
         <button 
           onClick={() => setActiveTab('add')}
@@ -264,9 +273,20 @@ export function AdminUpload() {
         </button>
       </div>
 
-      {/* FORMULAIRE D'AJOUT */}
       {activeTab === 'add' && (
         <form onSubmit={handleUpload} className="admin-form">
+          <div className="admin-field">
+            <label className="admin-label">Titre de l'œuvre</label>
+            <input 
+              type="text" 
+              value={title} 
+              onChange={e => setTitle(e.target.value)} 
+              required 
+              className="admin-input"
+              placeholder="Ex: Sangoku Super Saiyan"
+            />
+          </div>
+
           <div className="admin-field">
             <label className="admin-label">Thématique de l'œuvre</label>
             <input 
@@ -275,6 +295,7 @@ export function AdminUpload() {
               onChange={e => setThematique(e.target.value)} 
               required 
               className="admin-input"
+              placeholder="Ex: Dragon Ball"
             />
           </div>
 
@@ -286,6 +307,7 @@ export function AdminUpload() {
               onChange={e => setTechnique(e.target.value)} 
               required 
               className="admin-input"
+              placeholder="Ex: Crayon de couleur A3"
             />
           </div>
 
@@ -298,6 +320,25 @@ export function AdminUpload() {
               required 
               className="admin-input"
             />
+          </div>
+
+          <div className="admin-checkbox-group">
+            <label className="admin-checkbox-label">
+              <input 
+                type="checkbox" 
+                checked={isOriginalAvailable} 
+                onChange={e => setIsOriginalAvailable(e.target.checked)} 
+              />
+              Original disponible à la vente
+            </label>
+            <label className="admin-checkbox-label">
+              <input 
+                type="checkbox" 
+                checked={isPrintAvailable} 
+                onChange={e => setIsPrintAvailable(e.target.checked)} 
+              />
+              Copie papier 250g/m² disponible
+            </label>
           </div>
 
           <div className="admin-field">
@@ -318,12 +359,23 @@ export function AdminUpload() {
         </form>
       )}
 
-      {/* LISTE ET ÉDITION / SUPPRESSION */}
       {activeTab === 'list' && (
         <div className="admin-list-container">
           {editingArtwork && (
             <form onSubmit={handleUpdateArtwork} className="admin-edit-form">
-              <h3>Modifier : {editingArtwork.thematique}</h3>
+              <h3>Modifier : {editingArtwork.title || editingArtwork.thematique}</h3>
+
+              <div className="admin-field">
+                <label className="admin-label">Titre</label>
+                <input 
+                  type="text" 
+                  value={editingArtwork.title || ''} 
+                  onChange={e => setEditingArtwork({ ...editingArtwork, title: e.target.value })} 
+                  required 
+                  className="admin-input"
+                />
+              </div>
+
               <div className="admin-field">
                 <label className="admin-label">Thématique</label>
                 <input 
@@ -334,6 +386,7 @@ export function AdminUpload() {
                   className="admin-input"
                 />
               </div>
+
               <div className="admin-field">
                 <label className="admin-label">Technique</label>
                 <input 
@@ -344,6 +397,7 @@ export function AdminUpload() {
                   className="admin-input"
                 />
               </div>
+
               <div className="admin-field">
                 <label className="admin-label">Prix (€)</label>
                 <input 
@@ -354,6 +408,26 @@ export function AdminUpload() {
                   className="admin-input"
                 />
               </div>
+
+              <div className="admin-checkbox-group">
+                <label className="admin-checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={editingArtwork.is_original_available} 
+                    onChange={e => setEditingArtwork({ ...editingArtwork, is_original_available: e.target.checked })} 
+                  />
+                  Original disponible
+                </label>
+                <label className="admin-checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={editingArtwork.is_print_available} 
+                    onChange={e => setEditingArtwork({ ...editingArtwork, is_print_available: e.target.checked })} 
+                  />
+                  Copie 250g/m² disponible
+                </label>
+              </div>
+
               <div className="admin-actions">
                 <button type="submit" className="admin-save-btn">Enregistrer</button>
                 <button type="button" className="admin-cancel-btn" onClick={() => setEditingArtwork(null)}>Annuler</button>
@@ -367,10 +441,13 @@ export function AdminUpload() {
             <div className="admin-artworks-grid">
               {artworks.map(art => (
                 <div key={art.id} className="admin-artwork-item">
-                  <img src={art.image_url} alt={art.thematique} className="admin-artwork-thumb" />
+                  <img src={art.image_url} alt={art.title || art.thematique} className="admin-artwork-thumb" />
                   <div className="admin-artwork-info">
-                    <h4>{art.thematique}</h4>
+                    <h4>{art.title ? `${art.title} (${art.thematique})` : art.thematique}</h4>
                     <p>{art.technique} — {art.price} €</p>
+                    <p className="admin-availability-text">
+                      Orig: {art.is_original_available ? 'Dispo' : 'Vendu'} | Copie: {art.is_print_available ? 'Dispo' : 'Indispo'}
+                    </p>
                   </div>
                   <div className="admin-item-buttons">
                     <button onClick={() => setEditingArtwork(art)} className="admin-edit-btn">
@@ -387,7 +464,6 @@ export function AdminUpload() {
         </div>
       )}
 
-    {/* ONGLET 3 : ÉDITION DU TEXTE D'INTRODUCTION ACTU */}
       {activeTab === 'actu' && (
         <div className="admin-actu-editor">
           <form onSubmit={handleSaveActuText} className="admin-form">
@@ -401,8 +477,7 @@ export function AdminUpload() {
                   onChange={e => setActuIntro(e.target.value)} 
                   required 
                   rows={5}
-                  className="admin-input"
-                  style={{ resize: 'vertical', minHeight: '100px' }}
+                  className="admin-textarea"
                 />
               )}
             </div>
