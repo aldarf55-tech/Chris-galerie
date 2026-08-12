@@ -1,0 +1,9 @@
+.section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Empêche le contenu de se recentrer verticalement quand la taille change */
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+}

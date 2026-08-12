@@ -1,4 +1,10 @@
+/* 1. Reset des marges/paddings et boîte de calcul */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 :root {
+  /* Variables de couleurs et polices */
   --text: #6b6375;
   --text-h: #1e466e;
   --bg: #fff;
@@ -14,18 +20,11 @@
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
+}
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
+/* Adaptation de la taille de police globale sur mobile/tablette */
+@media (max-width: 1024px) {
+  html {
     font-size: 16px;
   }
 }
@@ -50,16 +49,41 @@
   }
 }
 
+/* Styles de base appliqués à la racine du document */
+html {
+  font-family: var(--sans);
+  font-size: 18px;
+  line-height: 1.45;
+  letter-spacing: 0.18px;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
 #root {
-  width: 1126px;
-  max-width: 100%;
+  width: 100%;
   margin: 0 auto;
   text-align: center;
-  min-height: 100svh;
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
 }
+
 
 body {
   margin: 0;
@@ -72,6 +96,7 @@ h2 {
   color: var(--text-h);
 }
 
+
 h1 {
   font-size: 56px;
   letter-spacing: -1.68px;
@@ -81,6 +106,7 @@ h1 {
     margin: 20px 0;
   }
 }
+
 h2 {
   font-size: 24px;
   line-height: 118%;
@@ -90,6 +116,7 @@ h2 {
     font-size: 20px;
   }
 }
+
 p {
   margin: 0;
 }
@@ -107,4 +134,4 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
-}
+} 

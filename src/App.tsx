@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import './App.css'
+import styles from './App.module.css';
 import { Header } from './components/layout/header/Header.tsx';
 import { AdminUpload } from './components/ui/AdminUpload.tsx';
 import { Footer } from './components/layout/Footer/Footer.tsx';
@@ -14,10 +14,10 @@ function App() {
   const [currentView, setCurrentView] = useState<ViewType>('ACTU');
 
   return (
-    <>
+    <div className={styles.appContainer}>
       <Header onViewChange={setCurrentView} />
       
-      <main id="center">
+      <main className={styles.mainContent}>
         {currentView === 'GALLERIE' && <Gallery />}
         {currentView === 'ABOUT' && <About />}
         {currentView === 'ADMIN' && <AdminUpload />}
@@ -25,7 +25,7 @@ function App() {
       </main>
 
      <Footer onViewChange={setCurrentView} />
-    </>
+    </div>
   );
 }
 
