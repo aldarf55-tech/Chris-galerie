@@ -5,11 +5,15 @@ import styles from './Lightbox.module.css';
 // 1. Mettez à jour ou créez l'interface Artwork propre à la Lightbox
 export interface Artwork {
   id: number | string;
+  title: string;
   thematique: string;
   technique: string;
-  price: number;
-  image_url: string; // <-- On utilise image_url au lieu de image
+  originalPrice: number;
+  copyPrice: number;
   category?: string;
+  image_url: string;
+  is_original_available: boolean;
+  is_print_available: boolean;
 }
 
 // 2. Définition des propriétés attendues par la Lightbox

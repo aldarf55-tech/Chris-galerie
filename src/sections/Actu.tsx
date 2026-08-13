@@ -6,11 +6,15 @@ import styles from './Actu.module.css';
 // Interface représentant la structure d'une œuvre dans Supabase
 interface Artwork {
   id: number | string;
+  title: string;
   thematique: string;
   technique: string;
-  price: number;
-  image_url: string;
+  originalPrice: number;
+  copyPrice: number;
   category?: string;
+  image_url: string;
+  is_original_available: boolean;
+  is_print_available: boolean;
 }
 
 export const Actu = () => {
@@ -95,7 +99,7 @@ export const Actu = () => {
               style={{ cursor: 'pointer' }}
             >
               <div className={styles.imageWrapper}>
-                <img src={art.image_url} alt={art.thematique} className={styles.image} />
+                <img src={art.image_url} alt={`${art.title ? `${art.title} - ` : ''}${art.thematique} (${art.technique}) - Christogr@phik`} className={styles.image} />
               </div>
               <div className={styles.overlay}>
                 <h3>{art.thematique}</h3>
