@@ -39,9 +39,21 @@ export function AdminUpload() {
   const [loadingArtworks, setLoadingArtworks] = useState(false);
 
   // ÉTATS GESTION TEXTE ACTU
-  const [actuIntro, setActuIntro] = useState('');
-  const [loadingActu, setLoadingActu] = useState(false);
-  const [savingActu, setSavingActu] = useState(false);
+  const [actuText, setActuText] = useState('');
+const [actuFiles, setActuFiles] = useState<{ [key: string]: File | null }>({
+  actuImage1: null,
+  actuImage2: null,
+  actuImage3: null,
+  actuImage4: null,
+});
+const [actuImageUrls, setActuImageUrls] = useState<{ [key: string]: string }>({
+  actuImage1: '',
+  actuImage2: '',
+  actuImage3: '',
+  actuImage4: '',
+});
+const [loadingActu, setLoadingActu] = useState(false);
+const [savingActu, setSavingActu] = useState(false);
 
   // ÉTATS GESTION TEXTE/IMAGE APROPS
   const [aproposIntro, setAproposIntro] = useState('');
@@ -94,20 +106,26 @@ export function AdminUpload() {
   };
 
   const fetchActuText = async () => {
-    setLoadingActu(true);
-    const { data, error } = await supabase
-      .from('actu')
-      .select('value')
-      .eq('key', 'actu_intro')
-      .maybeSingle();
+  setLoadingActu(true);
+  const { data, error } = await supabase
+    .from('actu')
+    .select('*')
+    .limit(1)
+    .maybeSingle();
 
-    if (error) {
-      console.error("Erreur chargement texte ACTU :", error.message);
-    } else if (data) {
-      setActuIntro(data.value);
-    }
-    setLoadingActu(false);
-  };
+  if (error) {
+    console.error("Erreur chargement ACTU :", error.message);
+  } else if (data) {
+    setActuText(data.value || '');
+    setActuImageUrls({
+      actuImage1: data.actuImage1 || '',
+      actuImage2: data.actuImage2 || '',
+      actuImage3: data.actuImage3 || '',
+      actuImage4: data.actuImage4 || '',
+    });
+  }
+  setLoadingActu(false);
+};
 
   const fetchAproposData = async () => {
     setLoadingApropos(true);
@@ -199,21 +217,79 @@ const handleSaveApropos = async (e: React.FormEvent) => {
     }
   };
 
-  const handleSaveActuText = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSavingActu(true);
+  const handleSaveActu = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setSavingActu(true);
 
-    const { error } = await supabase
-      .from('actu')
-      .upsert({ key: 'actu_intro', value: actuIntro });
+  try {
+    const updatedUrls = { ...actuImageUrls };
 
-    if (error) {
-      alert("Erreur lors de la mise à jour du texte : " + error.message);
-    } else {
-      alert("Texte d'introduction ACTU mis à jour avec succès !");
+    // Boucle sur les 4 emplacements d'images
+    for (let i = 1; i <= 4; i++) {
+      const fieldKey = `actuImage${i}`;
+      const file = actuFiles[fieldKey];
+
+      if (file) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `actu-${i}-${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('gallery-images')
+          .upload(fileName, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicURLData } = supabase.storage
+          .from('gallery-images')
+          .getPublicUrl(fileName);
+
+        updatedUrls[fieldKey] = publicURLData.publicUrl;
+      }
     }
+
+    // Récupération de l'enregistrement existant (si disponible) pour récupérer son 'key' / ID
+    const { data: existingData } = await supabase
+      .from('actu')
+      .select('key')
+      .limit(1)
+      .maybeSingle();
+
+    const payload: Record<string, any> = {
+      value: actuText,
+      actuImage1: updatedUrls.actuImage1,
+      actuImage2: updatedUrls.actuImage2,
+      actuImage3: updatedUrls.actuImage3,
+      actuImage4: updatedUrls.actuImage4,
+    };
+
+    if (existingData?.key) {
+      payload.key = existingData.key;
+    }
+
+    const { error } = await supabase.from('actu').upsert(payload);
+
+    if (error) throw error;
+
+    setActuImageUrls(updatedUrls);
+    setActuFiles({
+      actuImage1: null,
+      actuImage2: null,
+      actuImage3: null,
+      actuImage4: null,
+    });
+
+    alert("Actualité mise à jour avec succès !");
+  } catch (error: any) {
+    alert("Erreur lors de la mise à jour de l'actualité : " + error.message);
+  } finally {
     setSavingActu(false);
-  };
+  }
+};
+
+const handleRemoveActuImage = (imageKey: string) => {
+  setActuImageUrls(prev => ({ ...prev, [imageKey]: '' }));
+  setActuFiles(prev => ({ ...prev, [imageKey]: null }));
+};
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -596,29 +672,77 @@ const handleSaveApropos = async (e: React.FormEvent) => {
       )}
 
       {activeTab === 'actu' && (
-        <div className="admin-actu-editor">
-          <form onSubmit={handleSaveActuText} className="admin-form">
-            <div className="admin-field">
-              <label className="admin-label">Texte d'introduction de la section ACTU</label>
-              {loadingActu ? (
-                <p>Chargement du texte actuel...</p>
-              ) : (
-                <textarea 
-                  value={actuIntro} 
-                  onChange={e => setActuIntro(e.target.value)} 
-                  required 
-                  rows={5}
-                  className="admin-textarea"
-                />
-              )}
-            </div>
+  <div className="admin-actu-editor">
+    <form onSubmit={handleSaveActu} className="admin-form">
+      <div className="admin-field">
+        <label className="admin-label">Texte ou titre de l'actualité</label>
+        {loadingActu ? (
+          <p>Chargement des données actuelles...</p>
+        ) : (
+          <textarea
+            value={actuText}
+            onChange={e => setActuText(e.target.value)}
+            required
+            rows={4}
+            className="admin-textarea"
+            placeholder="Saisissez le texte ou la description de l'actualité..."
+          />
+        )}
+      </div>
 
-            <button type="submit" disabled={savingActu || loadingActu} className="admin-button">
-              {savingActu ? "Enregistrement..." : "Enregistrer le texte"}
-            </button>
-          </form>
+      <div className="admin-field">
+        <label className="admin-label">Images de l'actualité (jusqu'à 4)</label>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '0.5rem' }}>
+          {[1, 2, 3, 4].map(num => {
+            const fieldKey = `actuImage${num}`;
+            const currentUrl = actuImageUrls[fieldKey];
+
+            return (
+              <div key={num} style={{ border: '1px dashed #ccc', padding: '10px', borderRadius: '6px' }}>
+                <p style={{ fontWeight: 'bold', marginBottom: '8px' }}>Image {num}</p>
+                
+                {currentUrl ? (
+                  <div style={{ marginBottom: '8px' }}>
+                    <img
+                      src={currentUrl}
+                      alt={`Actu ${num}`}
+                      className="admin-artwork-thumb"
+                      style={{ width: '100%', height: '120px', objectFit: 'cover' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveActuImage(fieldKey)}
+                      className="admin-delete-btn"
+                      style={{ marginTop: '5px', width: '100%' }}
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                ) : (
+                  <p style={{ fontSize: '0.85rem', color: '#666' }}>Aucune image sélectionnée</p>
+                )}
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => {
+                    const file = e.target.files?.[0] || null;
+                    setActuFiles(prev => ({ ...prev, [fieldKey]: file }));
+                  }}
+                  className="admin-file-input"
+                />
+              </div>
+            );
+          })}
         </div>
-      )}
+      </div>
+
+      <button type="submit" disabled={savingActu || loadingActu} className="admin-button" style={{ marginTop: '1.5rem' }}>
+        {savingActu ? "Enregistrement en cours..." : "Enregistrer l'actualité"}
+      </button>
+    </form>
+  </div>
+)}
 
       {activeTab === 'apropos' && (
         <div className="admin-apropos-editor">

@@ -14,14 +14,13 @@
 
 .section h2 {
   margin-bottom: 1.5rem;
-  text-align: left;
+  text-align: center;
 }
 
 /* Conteneur de l'image de profil */
 .imageContainer {
   float: left;            /* Fait flotter l'image à gauche */
-  margin-right: 1.5rem;   /* Espace entre l'image et le texte à droite */
-  margin-bottom: 1rem;    /* Espace sous l'image pour le texte qui passe en dessous */
+  margin: 0.5rem 0.5rem 0; /* Marge autour de l'image */
   width: 140px;           /* Largeur fixe pour la photo de profil */
   height: 140px;          /* Hauteur fixe pour conserver un ratio carré */
 }
@@ -31,7 +30,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;     /* Empêche la déformation de la photo */
-  border-radius: 50%;    /* Forme circulaire (optionnel : mettre à 8px pour des coins arrondis) */
+  border-radius: 8px;  
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Petite ombre légère pour le relief */
 }
 
@@ -46,8 +45,8 @@
 /* Responsive : sur très petits écrans (mobiles), on centre l'image au-dessus du texte */
 @media (max-width: 600px) {
   .imageContainer {
-    float: none;
-    margin: 0 auto 1.5rem auto;
+    float: left; /* On garde le float pour que l'image reste à gauche */
+    margin: 1rem 0.5rem 0; /* On ajoute un peu d'espace autour de l'image */
     display: block;
     width: 120px;
     height: 120px;

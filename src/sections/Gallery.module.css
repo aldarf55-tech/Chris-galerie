@@ -9,7 +9,7 @@
 .title {
   text-align: center;
   font-size: 2rem;
-  margin-bottom: 2rem;
+  margin: 0 0 0.5rem;
 }
 
 /* Filtres - Desktop */
@@ -48,7 +48,7 @@
     flex-wrap: nowrap; /* Interdit le retour à la ligne */
     overflow-x: auto; /* Active le scroll horizontal */
     padding: 0.5rem 1rem 1rem 1rem; /* Marge interne pour le confort de défilement */
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
     -webkit-overflow-scrolling: touch; /* Défilement ultra-fluide sur iOS */
     scroll-snap-type: x mandatory; /* Effet d'aimant au défilement */
     
@@ -143,7 +143,7 @@
 /* Barre de recherche - Conteneur & Input */
 .searchContainer {
   max-width: 400px;
-  margin: 0 auto 1.5rem auto;
+  margin: 0 auto 1rem auto;
   padding: 0 1rem;
 }
 
@@ -174,7 +174,7 @@
 @media (max-width: 768px) {
   .searchContainer {
     max-width: 100%;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
   }
 
   .searchInput {

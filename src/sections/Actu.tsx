@@ -1,124 +1,88 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient'; // Ajustez le chemin vers votre client Supabase si besoin
-import { Lightbox } from '../components/ui/Lightbox';
 import styles from './Actu.module.css';
 
-// Interface représentant la structure d'une œuvre dans Supabase
-interface Artwork {
-  id: number | string;
-  title: string;
-  thematique: string;
-  technique: string;
-  originalPrice: number;
-  copyPrice: number;
-  category?: string;
+// 1. Types pour la structure des données Supabase
+export interface ActuItem {
+  key: string | number;
+  value: string;
   image_url: string;
-  is_original_available: boolean;
-  is_print_available: boolean;
+  created_at?: string;
 }
 
 export const Actu = () => {
-  const [artworks, setArtworks] = useState<Artwork[]>([]);
-  const [introText, setIntroText] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [actu, setActu] = useState<ActuItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Charger le texte et les 2 dernières œuvres depuis Supabase
   useEffect(() => {
-    fetchData();
+    const fetchActu = async () => {
+      try {
+        setLoading(true);
+
+        // 2. Requête Supabase : Sélection de 4 éléments triés par date décroissante
+        const { data, error } = await supabase
+          .from('actu') // Remplace 'actus' par le nom exact de ta table Supabase
+          .select('key, value, image_url, created_at')
+          .order('created_at', { ascending: false })
+          .limit(4);
+
+        if (error) {
+          throw error;
+        }
+
+        if (data) {
+          setActu(data);
+        }
+      } catch (err) {
+        console.error('Erreur lors de la récupération des actualités :', err);
+        setError('Impossible de charger les actualités.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchActu();
   }, []);
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
+  // Gestion des états pendant le chargement
+  if (loading) {
+    return (
+      <section className={styles.actuSection}>
+        <p className={styles.statusMessage}>Chargement des actualités...</p>
+      </section>
+    );
+  }
 
-      // Exécution en parallèle de la récupération du texte et des œuvres
-      await Promise.all([
-        fetchIntroText(),
-        fetchLatestArtworks()
-      ]);
-
-    } catch (error: any) {
-      console.error("Erreur globale lors du chargement :", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Récupère le texte depuis la table actu (clé: 'actu_intro')
-  const fetchIntroText = async () => {
-    const { data, error } = await supabase
-      .from('actu')
-      .select('value')
-      .eq('key', 'actu_intro')
-      .maybeSingle();
-
-    if (error) {
-      console.error("Erreur lors de la récupération du texte ACTU :", error.message);
-    } else if (data) {
-      setIntroText(data.value);
-    }
-  };
-
-  // Récupère les 2 dernières œuvres
-  const fetchLatestArtworks = async () => {
-    const { data, error } = await supabase
-      .from('artworks')
-      .select('*')
-      .order('id', { ascending: false })
-      .limit(2);
-
-    if (error) throw error;
-    if (data) setArtworks(data);
-  };
+  if (error) {
+    return (
+      <section className={styles.actuSection}>
+        <p className={styles.errorMessage}>{error}</p>
+      </section>
+    );
+  }
 
   return (
     <section className={styles.actuSection}>
-      <h2>ACTU</h2>
-      
-      {/* Affichage du texte dynamique de Supabase */}
-      {introText && <p className={styles.introText}>{introText}</p>}
+      <h2 className={styles.title}>Dernières Actualités</h2>
 
-      <h2>NOUVEAUTES</h2>
-      {/* Affichage pendant le chargement */}
-      {loading ? (
-        <p style={{ textAlign: 'center', padding: '40px' }}>Chargement des 2 dernières œuvres...</p>
-      ) : artworks.length === 0 ? (
-        /* Message si aucune œuvre n'est présente */
-        <p style={{ textAlign: 'center', color: '#6b7280', padding: '40px' }}>
-          Aucune œuvre pour le moment.
-        </p>
-      ) : (
-        /* Grille des 2 dernières images */
-        <div className={styles.grid}>
-          {artworks.map((art, index) => (
-            <div 
-              key={art.id} 
-              className={styles.card}
-              onClick={() => setActiveIndex(index)}
-              style={{ cursor: 'pointer' }}
-            >
-              <div className={styles.imageWrapper}>
-                <img src={art.image_url} alt={`${art.title ? `${art.title} - ` : ''}${art.thematique} (${art.technique}) - Christogr@phik`} className={styles.image} />
-              </div>
-              <div className={styles.overlay}>
-                <h3>{art.thematique}</h3>
-                <h5>{art.technique}</h5>
-              </div>
+      <div className={styles.actuGrid}>
+        {actu.map((item) => (
+          <article key={item.key} className={styles.actuCard}>
+            <div className={styles.imageWrapper}>
+              <img
+                src={item.image_url}
+                alt={item.value}
+                className={styles.image}
+                loading="lazy"
+              />
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* Lightbox pour agrandir les images au clic */}
-      {activeIndex !== null && (
-        <Lightbox 
-          artworksList={artworks}
-          currentIndex={activeIndex}
-          setCurrentIndex={setActiveIndex}
-          onClose={() => setActiveIndex(null)} 
-        />
-      )}
+            <div className={styles.content}>
+              <h3 className={styles.cardTitle}>{item.value}</h3>
+            </div>
+          </article>
+        ))}
+      </div>
     </section>
   );
 };
