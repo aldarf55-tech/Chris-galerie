@@ -7,7 +7,8 @@ interface Artwork {
   title: string;
   thematique: string;
   technique: string;
-  price: number;
+  originalPrice: number;
+  copyPrice: number;
   category?: string;
   image_url: string;
   is_original_available: boolean;
@@ -19,13 +20,14 @@ export function AdminUpload() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loadingLogin, setLoadingLogin] = useState(false);
-  const [activeTab, setActiveTab] = useState<'add' | 'list' | 'actu'>('add');
+  const [activeTab, setActiveTab] = useState<'add' | 'list' | 'actu' | 'apropos'>('add');
 
   // CHAMPS DU FORMULAIRE D'AJOUT
   const [title, setTitle] = useState('');
   const [thematique, setThematique] = useState('');
   const [technique, setTechnique] = useState('');
-  const [price, setPrice] = useState('');
+  const [originalPrice, setOriginalPrice] = useState('');
+  const [copyPrice, setCopyPrice] = useState('');
   const [isOriginalAvailable, setIsOriginalAvailable] = useState(true);
   const [isPrintAvailable, setIsPrintAvailable] = useState(true);
   const [file, setFile] = useState<File | null>(null);
@@ -40,6 +42,13 @@ export function AdminUpload() {
   const [actuIntro, setActuIntro] = useState('');
   const [loadingActu, setLoadingActu] = useState(false);
   const [savingActu, setSavingActu] = useState(false);
+
+  // ÉTATS GESTION TEXTE/IMAGE APROPS
+  const [aproposIntro, setAproposIntro] = useState('');
+  const [aproposImageUrl, setAproposImageUrl] = useState('');
+  const [aproposFile, setAproposFile] = useState<File | null>(null);
+  const [loadingApropos, setLoadingApropos] = useState(false);
+  const [savingApropos, setSavingApropos] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -57,6 +66,7 @@ export function AdminUpload() {
     if (session) {
       fetchArtworks();
       fetchActuText();
+      fetchAproposData();
     }
   }, [session]);
 
@@ -99,6 +109,96 @@ export function AdminUpload() {
     setLoadingActu(false);
   };
 
+  const fetchAproposData = async () => {
+    setLoadingApropos(true);
+    const { data, error } = await supabase
+      .from('apropos')
+      .select('value, image_url')
+      .eq('key', 'apropos_intro')
+      .maybeSingle();
+
+    if (error) {
+      console.error("Erreur chargement texte APROPOS :", error.message);
+    } else if (data) {
+      setAproposIntro(data.value || '');
+      setAproposImageUrl(data.image_url || '');
+    }
+    setLoadingApropos(false);
+  };
+
+const handleSaveApropos = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingApropos(true);
+
+    try {
+      let finalImageUrl = aproposImageUrl;
+
+      // Si un nouveau fichier image est sélectionné, on l'uploade
+      if (aproposFile) {
+        const fileExt = aproposFile.name.split('.').pop();
+        const fileName = `apropos-${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('gallery-images')
+          .upload(fileName, aproposFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicURLData } = supabase.storage
+          .from('gallery-images')
+          .getPublicUrl(fileName);
+
+        finalImageUrl = publicURLData.publicUrl;
+      }
+
+      const { error } = await supabase
+        .from('apropos')
+        .upsert({ 
+          key: 'apropos_intro', 
+          value: aproposIntro, 
+          image_url: finalImageUrl 
+        });
+
+      if (error) throw error;
+
+      setAproposImageUrl(finalImageUrl);
+      setAproposFile(null);
+      const input = document.getElementById('apropos-file-input') as HTMLInputElement;
+      if (input) input.value = '';
+
+      alert("Page À Propos mise à jour avec succès !");
+    } catch (error: any) {
+      alert("Erreur lors de la sauvegarde : " + error.message);
+    } finally {
+      setSavingApropos(false);
+    }
+  };
+
+  const handleRemoveAproposImage = async () => {
+    if (!window.confirm("Voulez-vous vraiment supprimer l'image de la page À Propos ?")) return;
+
+    setSavingApropos(true);
+    try {
+      const { error } = await supabase
+        .from('apropos')
+        .upsert({ 
+          key: 'apropos_intro', 
+          value: aproposIntro, 
+          image_url: '' 
+        });
+
+      if (error) throw error;
+
+      setAproposImageUrl('');
+      setAproposFile(null);
+      alert("Image supprimée avec succès !");
+    } catch (error: any) {
+      alert("Erreur de suppression d'image : " + error.message);
+    } finally {
+      setSavingApropos(false);
+    }
+  };
+
   const handleSaveActuText = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingActu(true);
@@ -139,7 +239,8 @@ export function AdminUpload() {
           title,
           thematique,
           technique,
-          price: parseFloat(price),
+          originalPrice: parseFloat(originalPrice),
+          copyPrice: parseFloat(copyPrice),
           image_url: publicURLData.publicUrl,
           is_original_available: isOriginalAvailable,
           is_print_available: isPrintAvailable,
@@ -152,7 +253,8 @@ export function AdminUpload() {
       setTitle('');
       setThematique('');
       setTechnique('');
-      setPrice('');
+      setOriginalPrice('');
+      setCopyPrice('');
       setIsOriginalAvailable(true);
       setIsPrintAvailable(true);
       setFile(null);
@@ -176,7 +278,8 @@ export function AdminUpload() {
         title: editingArtwork.title,
         thematique: editingArtwork.thematique,
         technique: editingArtwork.technique,
-        price: editingArtwork.price,
+        originalPrice: editingArtwork.originalPrice,
+        copyPrice: editingArtwork.copyPrice,
         is_original_available: editingArtwork.is_original_available,
         is_print_available: editingArtwork.is_print_available,
       })
@@ -271,6 +374,12 @@ export function AdminUpload() {
         >
           Modif ACTU
         </button>
+        <button 
+          onClick={() => setActiveTab('apropos')}
+          className={`admin-tab-btn ${activeTab === 'apropos' ? 'active' : ''}`}
+        >
+          Modif À PROPOS
+        </button>
       </div>
 
       {activeTab === 'add' && (
@@ -312,11 +421,22 @@ export function AdminUpload() {
           </div>
 
           <div className="admin-field">
-            <label className="admin-label">Prix (€)</label>
+            <label className="admin-label">Prix original (€)</label>
             <input 
               type="number" 
-              value={price} 
-              onChange={e => setPrice(e.target.value)} 
+              value={originalPrice} 
+              onChange={e => setOriginalPrice(e.target.value)} 
+              required 
+              className="admin-input"
+            />
+          </div>
+
+          <div className="admin-field">
+            <label className="admin-label">Prix copie (€)</label>
+            <input 
+              type="number" 
+              value={copyPrice} 
+              onChange={e => setCopyPrice(e.target.value)} 
               required 
               className="admin-input"
             />
@@ -399,11 +519,22 @@ export function AdminUpload() {
               </div>
 
               <div className="admin-field">
-                <label className="admin-label">Prix (€)</label>
+                <label className="admin-label">Prix original (€)</label>
                 <input 
                   type="number" 
-                  value={editingArtwork.price} 
-                  onChange={e => setEditingArtwork({ ...editingArtwork, price: parseFloat(e.target.value) })} 
+                  value={editingArtwork.originalPrice} 
+                  onChange={e => setEditingArtwork({ ...editingArtwork, originalPrice: parseFloat(e.target.value) })} 
+                  required 
+                  className="admin-input"
+                />
+              </div>
+
+              <div className="admin-field">
+                <label className="admin-label">Prix copie (€)</label>
+                <input 
+                  type="number" 
+                  value={editingArtwork.copyPrice} 
+                  onChange={e => setEditingArtwork({ ...editingArtwork, copyPrice: parseFloat(e.target.value) })} 
                   required 
                   className="admin-input"
                 />
@@ -444,7 +575,7 @@ export function AdminUpload() {
                   <img src={art.image_url} alt={art.title || art.thematique} className="admin-artwork-thumb" />
                   <div className="admin-artwork-info">
                     <h4>{art.title ? `${art.title} (${art.thematique})` : art.thematique}</h4>
-                    <p>{art.technique} — {art.price} €</p>
+                    <p>{art.technique} — {art.originalPrice} €</p>
                     <p className="admin-availability-text">
                       Orig: {art.is_original_available ? 'Dispo' : 'Vendu'} | Copie: {art.is_print_available ? 'Dispo' : 'Indispo'}
                     </p>
@@ -486,6 +617,64 @@ export function AdminUpload() {
               {savingActu ? "Enregistrement..." : "Enregistrer le texte"}
             </button>
           </form>
+        </div>
+      )}
+
+      {activeTab === 'apropos' && (
+        <div className="admin-apropos-editor">
+          <form onSubmit={handleSaveApropos} className="admin-form">
+            <div className="admin-field">
+              <label className="admin-label">Texte de présentation (À Propos)</label>
+              {loadingApropos ? (
+                <p>Chargement de la section À Propos...</p>
+              ) : (
+                <textarea 
+                  value={aproposIntro} 
+                  onChange={e => setAproposIntro(e.target.value)} 
+                  rows={6}
+                  className="admin-textarea"
+                  placeholder="Écrivez votre texte de présentation ici..."
+                />
+              )}
+            </div>
+
+            <div className="admin-field">
+              <label className="admin-label">Image de profil / présentation</label>
+              {aproposImageUrl && (
+                <div>
+                  <p>Image actuelle :</p>
+                  <img 
+                    src={aproposImageUrl} 
+                    alt="À Propos" 
+                    className="admin-artwork-thumb" 
+                  />
+                  <br />
+                  <button 
+                    type="button" 
+                    onClick={handleRemoveAproposImage}
+                    className="admin-delete-btn"
+                  >
+                    Supprimer l'image actuelle
+                  </button>
+                </div>
+              )}
+                
+              <input 
+                id="apropos-file-input"
+                type="file" 
+                accept="image/*" 
+                onChange={e => setAproposFile(e.target.files?.[0] || null)} 
+                className="admin-file-input"
+              />
+              <small style={{ opacity: 0.7 }}>
+                {aproposImageUrl ? "Sélectionnez un fichier pour remplacer l'image existante." : "Sélectionnez une image à ajouter."}
+              </small>
+            </div>
+
+              <button type="submit" disabled={savingApropos} className="admin-button">
+                {savingApropos ? "Enregistrement..." : "Enregistrer les modifications À Propos"}
+              </button>
+            </form>
         </div>
       )}
     </div>

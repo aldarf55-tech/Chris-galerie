@@ -1,9 +1,59 @@
+/* Conteneur principal de la section */
 .section {
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* On force la section à englober tous les éléments flottants */
+.section::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.section h2 {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+/* Conteneur de l'image de profil */
+.imageContainer {
+  float: left;            /* Fait flotter l'image à gauche */
+  margin-right: 1.5rem;   /* Espace entre l'image et le texte à droite */
+  margin-bottom: 1rem;    /* Espace sous l'image pour le texte qui passe en dessous */
+  width: 140px;           /* Largeur fixe pour la photo de profil */
+  height: 140px;          /* Hauteur fixe pour conserver un ratio carré */
+}
+
+/* Stylisation de l'image elle-même */
+.aboutImage {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start; /* Empêche le contenu de se recentrer verticalement quand la taille change */
-  align-items: center;
-  text-align: center;
-  padding: 1rem;
+  height: 100%;
+  object-fit: cover;     /* Empêche la déformation de la photo */
+  border-radius: 50%;    /* Forme circulaire (optionnel : mettre à 8px pour des coins arrondis) */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Petite ombre légère pour le relief */
+}
+
+/* Style du paragraphe de texte */
+.content {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  text-align: justify;    /* Aligne joliment le texte qui passe sous l'image */
+  margin: 0;
+}
+
+/* Responsive : sur très petits écrans (mobiles), on centre l'image au-dessus du texte */
+@media (max-width: 600px) {
+  .imageContainer {
+    float: none;
+    margin: 0 auto 1.5rem auto;
+    display: block;
+    width: 120px;
+    height: 120px;
+  }
+  
+  .content {
+    text-align: left;
+  }
 }
