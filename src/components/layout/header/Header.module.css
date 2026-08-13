@@ -43,3 +43,49 @@
   cursor: pointer;
   font-weight: 600;
 }
+
+.social {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem; /* Espace entre les icônes */
+}
+
+.socialIcons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem; /* Espace entre les icônes */
+}
+
+.socialLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Espace entre l'icône et le texte */
+  text-decoration: none;
+  color: inherit;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.socialLink:hover {
+  color: #e1306c; /* Couleur officielle d'Instagram au survol */
+}
+
+.buttonIcon {
+  display: block;
+}
+
+.mailLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Espace entre l'icône et le texte */
+  text-decoration: none;
+  color: inherit;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.mailLink:hover {
+  color: #d06e2d; /* Couleur personnalisée au survol */
+}
