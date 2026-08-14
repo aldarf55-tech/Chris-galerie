@@ -74,6 +74,37 @@ const [savingActu, setSavingActu] = useState(false);
   );
 });
 
+// FONCTION POUR FILTRER LES ŒUVRES UNIQUES PAR TITRE
+const getUniqueArtworksByTitle = (artworksList: any[]) => {
+  const seenTitles = new Set<string>();
+
+  return artworksList.filter(art => {
+    // Si pas de titre, on rabat sur la thématique ou l'id
+    const rawTitle = art.title || art.thematique || art.id;
+    
+    // Nettoyage : minuscules et suppression des espaces superflus
+    const normalizedTitle = rawTitle.toLowerCase().trim();
+
+    if (seenTitles.has(normalizedTitle)) {
+      return false; // Titre déjà rencontré, on le masque
+    }
+
+    seenTitles.add(normalizedTitle);
+    return true; // Premier passage, on le garde
+  });
+};
+// 1. Filtrage par recherche textuelle
+const searchedArtworks = artworks.filter(art => {
+  const query = searchTerm.toLowerCase();
+  return (
+    (art.title && art.title.toLowerCase().includes(query)) ||
+    (art.thematique && art.thematique.toLowerCase().includes(query)) ||
+    (art.technique && art.technique.toLowerCase().includes(query))
+  );
+});
+
+// 2. Suppression des doublons de titre sur le résultat
+const uniqueArtworks = getUniqueArtworksByTitle(searchedArtworks);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -659,8 +690,8 @@ const handleRemoveActuImage = (imageKey: string) => {
       <p className="admin-no-results">Aucune œuvre ne correspond à votre recherche.</p>
     ) : (
       <div className="admin-artworks-grid">
-        {filteredArtworks.map(art => (
-          <div key={art.id} className="admin-artwork-item">
+        {uniqueArtworks.map(art => (
+    <div key={art.id} className="admin-artwork-item">
             <img src={art.image_url} alt={art.title || art.thematique} className="admin-artwork-thumb" />
             <div className="admin-artwork-info">
               <h4>{art.title ? `${art.title} (${art.thematique})` : art.thematique}</h4>

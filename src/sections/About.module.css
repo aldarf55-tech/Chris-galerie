@@ -46,10 +46,10 @@
 @media (max-width: 600px) {
   .imageContainer {
     float: left; /* On garde le float pour que l'image reste à gauche */
-    margin: 1rem 0.5rem 0; /* On ajoute un peu d'espace autour de l'image */
+    margin: 0.5rem 0.5rem 0; /* On ajoute un peu d'espace autour de l'image */
     display: block;
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
   }
   
   .content {

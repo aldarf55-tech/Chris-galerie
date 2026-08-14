@@ -6,7 +6,7 @@
 
 .title {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 /* Alignement vertical des cartes d'actualité */
@@ -22,12 +22,8 @@
 .actuCard {
   display: flex;
   flex-direction: column;
-  background-color: var(--bg, #ffffff);
-  border: 1px solid var(--border, #e5e4e7);
-  border-radius: 8px;
   overflow: hidden;
-  box-shadow: var(--shadow, 0 4px 12px rgba(0, 0, 0, 0.05));
-  padding: 1.5rem;
+  padding: 0.5rem;
   gap: 1.25rem;
 }
 
