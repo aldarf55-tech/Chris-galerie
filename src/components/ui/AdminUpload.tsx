@@ -41,16 +41,16 @@ export function AdminUpload() {
   // ÉTATS GESTION TEXTE ACTU
   const [actuText, setActuText] = useState('');
 const [actuFiles, setActuFiles] = useState<{ [key: string]: File | null }>({
-  actuImage1: null,
-  actuImage2: null,
-  actuImage3: null,
-  actuImage4: null,
+  actuimage1: null,
+  actuimage2: null,
+  actuimage3: null,
+  actuimage4: null,
 });
 const [actuImageUrls, setActuImageUrls] = useState<{ [key: string]: string }>({
-  actuImage1: '',
-  actuImage2: '',
-  actuImage3: '',
-  actuImage4: '',
+  actuimage1: '',
+  actuimage2: '',
+  actuimage3: '',
+  actuimage4: '',
 });
 const [loadingActu, setLoadingActu] = useState(false);
 const [savingActu, setSavingActu] = useState(false);
@@ -61,6 +61,19 @@ const [savingActu, setSavingActu] = useState(false);
   const [aproposFile, setAproposFile] = useState<File | null>(null);
   const [loadingApropos, setLoadingApropos] = useState(false);
   const [savingApropos, setSavingApropos] = useState(false);
+
+  // RECHERCHE ET FILTRAGE
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredArtworks = artworks.filter(art => {
+  const query = searchTerm.toLowerCase();
+  return (
+    (art.title && art.title.toLowerCase().includes(query)) ||
+    (art.thematique && art.thematique.toLowerCase().includes(query)) ||
+    (art.technique && art.technique.toLowerCase().includes(query))
+  );
+});
+
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -118,10 +131,10 @@ const [savingActu, setSavingActu] = useState(false);
   } else if (data) {
     setActuText(data.value || '');
     setActuImageUrls({
-      actuImage1: data.actuImage1 || '',
-      actuImage2: data.actuImage2 || '',
-      actuImage3: data.actuImage3 || '',
-      actuImage4: data.actuImage4 || '',
+      actuimage1: data.actuimage1 || '',
+      actuimage2: data.actuimage2 || '',
+      actuimage3: data.actuimage3 || '',
+      actuimage4: data.actuimage4 || '',
     });
   }
   setLoadingActu(false);
@@ -224,9 +237,9 @@ const handleSaveApropos = async (e: React.FormEvent) => {
   try {
     const updatedUrls = { ...actuImageUrls };
 
-    // Boucle sur les 4 emplacements d'images
+    // Boucle sur les 4 emplacements d'images (correction de la minuscule 'actuimage')
     for (let i = 1; i <= 4; i++) {
-      const fieldKey = `actuImage${i}`;
+      const fieldKey = `actuimage${i}`;
       const file = actuFiles[fieldKey];
 
       if (file) {
@@ -247,38 +260,25 @@ const handleSaveApropos = async (e: React.FormEvent) => {
       }
     }
 
-    // Récupération de l'enregistrement existant (si disponible) pour récupérer son 'key' / ID
-    const { data: existingData } = await supabase
-      .from('actu')
-      .select('key')
-      .limit(1)
-      .maybeSingle();
-
-    const payload: Record<string, any> = {
+    // Publication d'une NOUVELLE actualité (Nouvelle entrée dans la table)
+    const payload = {
       value: actuText,
-      actuImage1: updatedUrls.actuImage1,
-      actuImage2: updatedUrls.actuImage2,
-      actuImage3: updatedUrls.actuImage3,
-      actuImage4: updatedUrls.actuImage4,
+      actuimage1: updatedUrls.actuimage1,
+      actuimage2: updatedUrls.actuimage2,
+      actuimage3: updatedUrls.actuimage3,
+      actuimage4: updatedUrls.actuimage4,
     };
 
-    if (existingData?.key) {
-      payload.key = existingData.key;
-    }
-
-    const { error } = await supabase.from('actu').upsert(payload);
+    const { error } = await supabase.from('actu').insert([payload]);
 
     if (error) throw error;
 
-    setActuImageUrls(updatedUrls);
-    setActuFiles({
-      actuImage1: null,
-      actuImage2: null,
-      actuImage3: null,
-      actuImage4: null,
-    });
+    // Réinitialisation du formulaire
+    setActuText('');
+    setActuImageUrls({ actuimage1: '', actuimage2: '', actuimage3: '', actuimage4: '' });
+    setActuFiles({ actuimage1: null, actuimage2: null, actuimage3: null, actuimage4: null });
 
-    alert("Actualité mise à jour avec succès !");
+    alert("Nouvelle actualité publiée avec succès !");
   } catch (error: any) {
     alert("Erreur lors de la mise à jour de l'actualité : " + error.message);
   } finally {
@@ -642,34 +642,50 @@ const handleRemoveActuImage = (imageKey: string) => {
             </form>
           )}
 
-          {loadingArtworks ? (
-            <p>Chargement des œuvres...</p>
-          ) : (
-            <div className="admin-artworks-grid">
-              {artworks.map(art => (
-                <div key={art.id} className="admin-artwork-item">
-                  <img src={art.image_url} alt={art.title || art.thematique} className="admin-artwork-thumb" />
-                  <div className="admin-artwork-info">
-                    <h4>{art.title ? `${art.title} (${art.thematique})` : art.thematique}</h4>
-                    <p>{art.technique} — {art.originalPrice} €</p>
-                    <p className="admin-availability-text">
-                      Orig: {art.is_original_available ? 'Dispo' : 'Vendu'} | Copie: {art.is_print_available ? 'Dispo' : 'Indispo'}
-                    </p>
-                  </div>
-                  <div className="admin-item-buttons">
-                    <button onClick={() => setEditingArtwork(art)} className="admin-edit-btn">
-                      Modifier
-                    </button>
-                    <button onClick={() => handleDeleteArtwork(art.id, art.image_url)} className="admin-delete-btn">
-                      Supprimer
-                    </button>
-                  </div>
-                </div>
-              ))}
+    {/* Barre de recherche */}
+    <div className="admin-search-bar" style={{ marginBottom: '1.5rem' }}>
+      <input
+        type="text"
+        placeholder="🔍 Rechercher par titre, thématique ou technique..."
+        value={searchTerm}
+        onChange={e => setSearchTerm(e.target.value)}
+        className="admin-input"
+      />
+    </div>
+
+    {loadingArtworks ? (
+      <p>Chargement des œuvres...</p>
+    ) : filteredArtworks.length === 0 ? (
+      <p className="admin-no-results">Aucune œuvre ne correspond à votre recherche.</p>
+    ) : (
+      <div className="admin-artworks-grid">
+        {filteredArtworks.map(art => (
+          <div key={art.id} className="admin-artwork-item">
+            <img src={art.image_url} alt={art.title || art.thematique} className="admin-artwork-thumb" />
+            <div className="admin-artwork-info">
+              <h4>{art.title ? `${art.title} (${art.thematique})` : art.thematique}</h4>
+              <p>{art.technique}</p>
+              <p className="admin-availability-text">
+                Orig: {art.is_original_available ? 'Dispo' : 'Vendu'} — {art.originalPrice} €
+              </p>
+              <p className="admin-availability-text">
+                Copie: {art.is_print_available ? 'Dispo' : 'Indispo'} — {art.copyPrice} €
+              </p>
             </div>
-          )}
-        </div>
-      )}
+            <div className="admin-item-buttons">
+              <button onClick={() => setEditingArtwork(art)} className="admin-edit-btn">
+                Modifier
+              </button>
+              <button onClick={() => handleDeleteArtwork(art.id, art.image_url)} className="admin-delete-btn">
+                Supprimer
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+)}
 
       {activeTab === 'actu' && (
   <div className="admin-actu-editor">
@@ -693,48 +709,49 @@ const handleRemoveActuImage = (imageKey: string) => {
       <div className="admin-field">
         <label className="admin-label">Images de l'actualité (jusqu'à 4)</label>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '0.5rem' }}>
-          {[1, 2, 3, 4].map(num => {
-            const fieldKey = `actuImage${num}`;
-            const currentUrl = actuImageUrls[fieldKey];
+  {[1, 2, 3, 4].map(num => {
+    // CORRECTION : minuscule 'actuimage' au lieu de 'actuImage'
+    const fieldKey = `actuimage${num}`; 
+    const currentUrl = actuImageUrls[fieldKey];
 
-            return (
-              <div key={num} style={{ border: '1px dashed #ccc', padding: '10px', borderRadius: '6px' }}>
-                <p style={{ fontWeight: 'bold', marginBottom: '8px' }}>Image {num}</p>
-                
-                {currentUrl ? (
-                  <div style={{ marginBottom: '8px' }}>
-                    <img
-                      src={currentUrl}
-                      alt={`Actu ${num}`}
-                      className="admin-artwork-thumb"
-                      style={{ width: '100%', height: '120px', objectFit: 'cover' }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveActuImage(fieldKey)}
-                      className="admin-delete-btn"
-                      style={{ marginTop: '5px', width: '100%' }}
-                    >
-                      Supprimer
-                    </button>
-                  </div>
-                ) : (
-                  <p style={{ fontSize: '0.85rem', color: '#666' }}>Aucune image sélectionnée</p>
-                )}
+    return (
+      <div key={num} style={{ border: '1px dashed #ccc', padding: '10px', borderRadius: '6px' }}>
+        <p style={{ fontWeight: 'bold', marginBottom: '8px' }}>Image {num}</p>
+        
+        {currentUrl ? (
+          <div style={{ marginBottom: '8px' }}>
+            <img
+              src={currentUrl}
+              alt={`Actu ${num}`}
+              className="admin-artwork-thumb"
+              style={{ width: '100%', height: '120px', objectFit: 'cover' }}
+            />
+            <button
+              type="button"
+              onClick={() => handleRemoveActuImage(fieldKey)}
+              className="admin-delete-btn"
+              style={{ marginTop: '5px', width: '100%' }}
+            >
+              Supprimer
+            </button>
+          </div>
+        ) : (
+          <p style={{ fontSize: '0.85rem', color: '#666' }}>Aucune image sélectionnée</p>
+        )}
 
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={e => {
-                    const file = e.target.files?.[0] || null;
-                    setActuFiles(prev => ({ ...prev, [fieldKey]: file }));
-                  }}
-                  className="admin-file-input"
-                />
-              </div>
-            );
-          })}
-        </div>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={e => {
+            const file = e.target.files?.[0] || null;
+            setActuFiles(prev => ({ ...prev, [fieldKey]: file }));
+          }}
+          className="admin-file-input"
+        />
+      </div>
+    );
+  })}
+</div>
       </div>
 
       <button type="submit" disabled={savingActu || loadingActu} className="admin-button" style={{ marginTop: '1.5rem' }}>

@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient'; // Ajustez le chemin vers votre client Supabase si besoin
+import { supabase } from '../supabaseClient';
 import styles from './Actu.module.css';
 
-// 1. Types pour la structure des données Supabase
 export interface ActuItem {
-  key: string | number;
+  key?: string;
   value: string;
-  image_url: string;
+  actuimage1?: string;
+  actuimage2?: string;
+  actuimage3?: string;
+  actuimage4?: string;
   created_at?: string;
 }
 
 export const Actu = () => {
-  const [actu, setActu] = useState<ActuItem[]>([]);
+  const [actuList, setActuList] = useState<ActuItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,10 +22,9 @@ export const Actu = () => {
       try {
         setLoading(true);
 
-        // 2. Requête Supabase : Sélection de 4 éléments triés par date décroissante
         const { data, error } = await supabase
-          .from('actu') // Remplace 'actus' par le nom exact de ta table Supabase
-          .select('key, value, image_url, created_at')
+          .from('actu')
+          .select('key, value, actuimage1, actuimage2, actuimage3, actuimage4, created_at')
           .order('created_at', { ascending: false })
           .limit(4);
 
@@ -32,7 +33,7 @@ export const Actu = () => {
         }
 
         if (data) {
-          setActu(data);
+          setActuList(data as ActuItem[]);
         }
       } catch (err) {
         console.error('Erreur lors de la récupération des actualités :', err);
@@ -45,7 +46,6 @@ export const Actu = () => {
     fetchActu();
   }, []);
 
-  // Gestion des états pendant le chargement
   if (loading) {
     return (
       <section className={styles.actuSection}>
@@ -67,21 +67,44 @@ export const Actu = () => {
       <h2 className={styles.title}>Dernières Actualités</h2>
 
       <div className={styles.actuGrid}>
-        {actu.map((item) => (
-          <article key={item.key} className={styles.actuCard}>
-            <div className={styles.imageWrapper}>
-              <img
-                src={item.image_url}
-                alt={item.value}
-                className={styles.image}
-                loading="lazy"
-              />
-            </div>
-            <div className={styles.content}>
-              <h3 className={styles.cardTitle}>{item.value}</h3>
-            </div>
-          </article>
-        ))}
+        {actuList.map((item, index) => {
+          // Extraction et filtrage des images valides
+          const images = [
+            item.actuimage1,
+            item.actuimage2,
+            item.actuimage3,
+            item.actuimage4,
+          ].filter((img): img is string => Boolean(img && img.trim() !== ''));
+
+          // Clé unique pour le composant React
+          const cardKey = item.key || item.created_at || `actu-${index}`;
+
+          return (
+            <article key={cardKey} className={styles.actuCard}>
+              <div className={styles.content}>
+                <p className={styles.cardText}>{item.value}</p>
+              </div>
+
+              {images.length > 0 && (
+                <div
+                  className={styles.imagesContainer}
+                  data-count={images.length}
+                >
+                  {images.map((imgUrl, imgIndex) => (
+                    <div key={`${cardKey}-img-${imgIndex}`} className={styles.imageWrapper}>
+                      <img
+                        src={imgUrl}
+                        alt={`Actualité ${item.key ?? index + 1} - Visuel ${imgIndex + 1}`}
+                        className={styles.image}
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </article>
+          );
+        })}
       </div>
     </section>
   );

@@ -44,14 +44,15 @@ export const Gallery = () => {
     }
   };
 
-  const categories = ['TOUT', ...new Set(artworks.map(art => art.category || art.thematique))];
+  const categories = ['TOUT', ...new Set(artworks.map(art => art.category || art.thematique || art.title))];
 
   // FILTRAGE COMBINÉ : Catégorie + Recherche textuelle
   const filteredArtworks = artworks.filter(art => {
-    const categoryMatch = filter === 'TOUT' || (art.category || art.thematique) === filter;
+    const categoryMatch = filter === 'TOUT' || (art.category || art.thematique || art.title) === filter;
     
     const query = searchQuery.toLowerCase().trim();
     const searchMatch = query === '' || 
+      art.title.toLowerCase().includes(query) ||
       art.thematique.toLowerCase().includes(query) ||
       art.technique.toLowerCase().includes(query) ||
       (art.category && art.category.toLowerCase().includes(query));
@@ -78,7 +79,7 @@ export const Gallery = () => {
           <div className={styles.searchContainer}>
             <input
               type="text"
-              placeholder="Rechercher un personnage, une technique..."
+              placeholder="Rechercher un personnage, une technique ou un thème..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={styles.searchInput}
@@ -122,6 +123,7 @@ export const Gallery = () => {
               </div>
               <div className={styles.overlay}>
                 <h3>{art.thematique}</h3>
+                <h4>{art.title}</h4>
                 <h5>{art.technique}</h5>
               </div>
             </div>
