@@ -130,6 +130,12 @@
 .overlay h3 {
   margin: 0 0 0.25rem 0;
   font-size: 1rem;
+  color: #ffffff;
+}
+
+.overlay h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
   color: #d06e2d;
 }
 

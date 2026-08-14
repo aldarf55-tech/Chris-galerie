@@ -60,6 +60,7 @@ export const Lightbox = ({ artworksList, currentIndex, setCurrentIndex, onClose 
       </button>
       
       <div className={styles.content} onClick={(e) => e.stopPropagation()}>
+          <h4>{artwork.title}</h4>
         <img src={artwork.image_url} alt={artwork.thematique} className={styles.image} />
         <div className={styles.info}>
           <h3>{artwork.thematique}</h3>
