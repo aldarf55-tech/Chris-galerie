@@ -69,6 +69,27 @@ export const Gallery = () => {
     );
   }
 
+  const getUniqueArtworksByTitle = (list: typeof artworks) => {
+  const seenTitles = new Set<string>();
+
+  return list.filter((art) => {
+    // 1. Récupération de la valeur brute
+    const rawTitle = art.title || art.thematique || art.id;
+
+    // 2. Conversion explicite en string + passage en minuscules + nettoyage des espaces
+    const normalizedTitle = String(rawTitle).toLowerCase().trim();
+
+    if (seenTitles.has(normalizedTitle)) {
+      return false; // Titre déjà présent
+    }
+
+    seenTitles.add(normalizedTitle);
+    return true;
+  });
+};
+
+const uniqueFilteredArtworks = getUniqueArtworksByTitle(filteredArtworks);
+
   return (
     <section className={styles.gallerySection}>
       <h1 className={styles.title}>GALERIE</h1>
@@ -102,34 +123,38 @@ export const Gallery = () => {
       )}
 
       {/* RÉSULTATS DE LA GALERIE */}
-      {artworks.length === 0 ? (
-        <p className={styles.statusMessage}>
-          Aucune œuvre pour le moment. Connectez-vous à l'espace admin pour en ajouter !
-        </p>
-      ) : filteredArtworks.length === 0 ? (
-        <p className={styles.statusMessage}>
-          Aucun dessin ne correspond à votre recherche "{searchQuery}".
-        </p>
-      ) : (
-        <div className={styles.grid}>
-          {filteredArtworks.map((art, index) => (
-            <div 
-              key={art.id} 
-              className={styles.card}
-              onClick={() => setActiveIndex(index)}
-            >
-              <div className={styles.imageWrapper}>
-                <img src={art.image_url} alt={`${art.title ? `${art.title} - ` : ''}${art.thematique} (${art.technique}) - Christogr@phik`} className={styles.image} />
-              </div>
-              <div className={styles.overlay}>
-                <h3>{art.thematique}</h3>
-                <h4>{art.title}</h4>
-                <h5>{art.technique}</h5>
-              </div>
-            </div>
-          ))}
+{artworks.length === 0 ? (
+  <p className={styles.statusMessage}>
+    Aucune œuvre pour le moment. Connectez-vous à l'espace admin pour en ajouter !
+  </p>
+) : uniqueFilteredArtworks.length === 0 ? (
+  <p className={styles.statusMessage}>
+    Aucun dessin ne correspond à votre recherche "{searchQuery}".
+  </p>
+) : (
+  <div className={styles.grid}>
+    {uniqueFilteredArtworks.map((art, index) => (
+      <div 
+        key={art.id} 
+        className={styles.card}
+        onClick={() => setActiveIndex(index)}
+      >
+        <div className={styles.imageWrapper}>
+          <img 
+            src={art.image_url} 
+            alt={`${art.title ? `${art.title} - ` : ''}${art.thematique} (${art.technique}) - Christogr@phik`} 
+            className={styles.image} 
+          />
         </div>
-      )}
+        <div className={styles.overlay}>
+          <h3>{art.thematique}</h3>
+          <h4>{art.title}</h4>
+          <h5>{art.technique}</h5>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
 
       {/* LIGHTBOX */}
       {activeIndex !== null && (
