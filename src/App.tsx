@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styles from './App.module.css';
 import { Header } from './components/layout/header/Header.tsx';
-import { AdminUpload } from './components/ui/AdminUpload.tsx';
+import { AdminUpload } from './components/AdminUpload.tsx';
 import { Footer } from './components/layout/Footer/Footer.tsx';
 import { Gallery } from './sections/Gallery.tsx';
 import { About } from './sections/About.tsx';
