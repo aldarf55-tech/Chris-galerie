@@ -166,15 +166,16 @@ const uniqueFilteredArtworks = getUniqueArtworksByTitle(filteredArtworks);
   </div>
 )}
 
-      {/* LIGHTBOX */}
-      {activeIndex !== null && (
-        <Lightbox 
-          artworksList={filteredArtworks}
-          currentIndex={activeIndex}
-          setCurrentIndex={setActiveIndex}
-          onClose={() => setActiveIndex(null)} 
-        />
-      )}
-    </section>
+    {/* LIGHTBOX */}
+    {activeIndex !== null && (
+      <Lightbox 
+        artworksList={uniqueFilteredArtworks}
+        currentIndex={activeIndex}
+        setCurrentIndex={setActiveIndex}
+        onClose={() => setActiveIndex(null)} 
+      />
+    )}
+    
+  </section>
   );
 };
