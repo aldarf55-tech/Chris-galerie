@@ -1,20 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { Lightbox } from '../components/ui/Lightbox';
+import type { Artwork } from '../components/ui/Lightbox';
 import styles from './Gallery.module.css';
 
-interface Artwork {
-  id: number | string;
-  title: string;
-  thematique: string;
-  technique: string;
-  originalPrice: number;
-  copyPrice: number;
-  category?: string;
-  image_url: string;
-  is_original_available: boolean;
-  is_print_available: boolean;
-}
 
 export const Gallery = () => {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -175,7 +164,7 @@ const uniqueFilteredArtworks = getUniqueArtworksByTitle(filteredArtworks);
         onClose={() => setActiveIndex(null)} 
       />
     )}
-    
+
   </section>
   );
 };
