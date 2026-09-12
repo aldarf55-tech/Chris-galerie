@@ -43,6 +43,7 @@ export const artworksService = {
         title: artwork.title,
         thematique: artwork.thematique,
         technique: artwork.technique,
+        format: artwork.format,
         originalPrice: artwork.originalPrice,
         copyPrice: artwork.copyPrice,
         is_original_available: artwork.is_original_available,

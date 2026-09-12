@@ -9,6 +9,7 @@ export function ArtworkAddForm({ onSuccess }: ArtworkAddFormProps) {
   const [title, setTitle] = useState('');
   const [thematique, setThematique] = useState('');
   const [technique, setTechnique] = useState('');
+  const [format, setFormat] = useState('');
   const [originalPrice, setOriginalPrice] = useState('');
   const [copyPrice, setCopyPrice] = useState('');
   const [isOriginalAvailable, setIsOriginalAvailable] = useState(true);
@@ -27,6 +28,7 @@ export function ArtworkAddForm({ onSuccess }: ArtworkAddFormProps) {
           title,
           thematique,
           technique,
+          format,
           originalPrice: parseFloat(originalPrice),
           copyPrice: parseFloat(copyPrice),
           is_original_available: isOriginalAvailable,
@@ -39,6 +41,7 @@ export function ArtworkAddForm({ onSuccess }: ArtworkAddFormProps) {
       setTitle('');
       setThematique('');
       setTechnique('');
+      setFormat('');
       setOriginalPrice('');
       setCopyPrice('');
       setIsOriginalAvailable(true);
@@ -83,14 +86,26 @@ export function ArtworkAddForm({ onSuccess }: ArtworkAddFormProps) {
       </div>
 
       <div className="admin-field">
-        <label className="admin-label">Technique / Format</label>
+        <label className="admin-label">Technique</label>
         <input
           type="text"
           value={technique}
           onChange={e => setTechnique(e.target.value)}
           required
           className="admin-input"
-          placeholder="Ex: Crayon de couleur A3"
+          placeholder="Ex: Crayon de couleur"
+        />
+      </div>
+
+      <div className="admin-field">
+        <label className="admin-label">Format</label>
+        <input
+          type="text"
+          value={format}
+          onChange={e => setFormat(e.target.value)}
+          required
+          className="admin-input"
+          placeholder="Ex: A3"
         />
       </div>
 

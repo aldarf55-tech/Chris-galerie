@@ -3,6 +3,7 @@ export interface Artwork {
   title: string;
   thematique: string;
   technique: string;
+  format: string;
   originalPrice: number;
   copyPrice: number;
   category?: string;
