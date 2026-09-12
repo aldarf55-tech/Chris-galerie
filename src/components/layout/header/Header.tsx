@@ -54,7 +54,7 @@ export const Header = ({ onViewChange }: HeaderProps) => {
           </svg>
         </a>
       
-        <a href="mailto:votre.adresse@email.com?subject=Demande%20d'information" className={styles.mailLink}>
+        <a href="mailto:banzai034@hotmail.com?subject=Demande%20d'information" className={styles.mailLink}>
           <svg 
             width="20" 
             height="20" 
