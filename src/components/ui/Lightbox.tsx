@@ -8,6 +8,7 @@ export interface Artwork {
   title: string;
   thematique: string;
   technique: string;
+  format: string;
   originalPrice: number;
   copyPrice: number;
   category?: string;
@@ -60,11 +61,21 @@ export const Lightbox = ({ artworksList, currentIndex, setCurrentIndex, onClose 
       </button>
       
       <div className={styles.content} onClick={(e) => e.stopPropagation()}>
-          <h4>{artwork.title}</h4>
+          <h4>{artwork.title} {artwork.format}</h4>
         <img src={artwork.image_url} alt={artwork.thematique} className={styles.image} />
         <div className={styles.info}>
           <h3>{artwork.thematique}</h3>
           <h5>{artwork.technique}</h5>
+          <p>
+            {artwork.is_print_available
+              ? <><strong>COPIE</strong> 250g/m² — <strong>{artwork.copyPrice} €</strong></>
+              : <><strong>COPIE</strong> 250g/m² <strong>VENDUE</strong></>}
+          </p>
+          <p>
+            {artwork.is_original_available 
+              ? <><strong>ORIGINAL</strong> — <strong>{artwork.originalPrice} €</strong></> 
+              : <><strong>ORIGINAL</strong> <strong>VENDU</strong></>}
+          </p>
         </div>
       </div>
 
