@@ -44,7 +44,17 @@ export const Gallery = () => {
     }
   };
 
-  const categories = ['TOUT', ...new Set(artworks.map(art => art.category || art.thematique || art.title))];
+// FILTRAGE ALPHABETIQUE DES CATÉGORIES
+  // 1. On extrait toutes les catégories uniques (sans 'TOUT')
+const rawCategories = Array.from(
+  new Set(artworks.map(art => art.category || art.thematique || art.title))
+).filter(Boolean); // 'filter(Boolean)' retire les valeurs nulles ou vides au cas où
+
+// 2. On trie par ordre alphabétique (prise en compte des accents)
+rawCategories.sort((a, b) => a.localeCompare(b, 'fr', { sensitivity: 'base' }));
+
+// 3. On place 'TOUT' en premier
+const categories = ['TOUT', ...rawCategories];
 
   // FILTRAGE COMBINÉ : Catégorie + Recherche textuelle
   const filteredArtworks = artworks.filter(art => {
