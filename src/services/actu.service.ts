@@ -6,7 +6,7 @@ export const actuService = {
     const { data, error } = await supabase
       .from('actu')
       .select('*')
-      .order('id', { ascending: false })
+      .order('created_at', { ascending: false }) // Tri par date de création (car 'id' n'existe pas)
       .limit(1)
       .maybeSingle();
 
@@ -17,6 +17,7 @@ export const actuService = {
   async save(text: string, currentUrls: Record<string, string>, newFiles: Record<string, File | null>): Promise<void> {
     const updatedUrls = { ...currentUrls };
 
+    // 1. Upload des nouvelles images vers le bucket de stockage Supabase
     for (let i = 1; i <= 4; i++) {
       const fieldKey = `actuimage${i}`;
       const currentFile = newFiles[fieldKey];
@@ -39,15 +40,22 @@ export const actuService = {
       }
     }
 
+    // 2. Préparation des données pour la mise à jour
     const payload = {
+      key: 'actu_intro', // ✅ La clé primaire requise par la table actu
       value: text,
-      actuimage1: updatedUrls.actuimage1,
-      actuimage2: updatedUrls.actuimage2,
-      actuimage3: updatedUrls.actuimage3,
-      actuimage4: updatedUrls.actuimage4,
+      actuimage1: updatedUrls.actuimage1 || '',
+      actuimage2: updatedUrls.actuimage2 || '',
+      actuimage3: updatedUrls.actuimage3 || '',
+      actuimage4: updatedUrls.actuimage4 || '',
+      updated_at: new Date().toISOString(),
     };
 
-    const { error } = await supabase.from('actu').insert([payload]);
+    // 3. Mise à jour (ou création) dans la base de données
+    const { error } = await supabase
+      .from('actu')
+      .upsert(payload, { onConflict: 'key' });
+
     if (error) throw error;
   }
 };
