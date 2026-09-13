@@ -99,6 +99,17 @@ export function ArtworkList({ artworks, loading, onRefresh }: ArtworkListProps) 
           </div>
 
           <div className="admin-field">
+            <label className="admin-label">Format</label>
+            <input
+              type="text"
+              value={editingArtwork.format}
+              onChange={e => setEditingArtwork({ ...editingArtwork, format: e.target.value })}
+              required
+              className="admin-input"
+            />
+          </div>
+
+          <div className="admin-field">
             <label className="admin-label">Prix original (€)</label>
             <input
               type="number"
