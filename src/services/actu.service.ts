@@ -1,48 +1,66 @@
 import { supabase } from '../supabaseClient';
 import type { ActuData } from '../types';
 
+const BUCKET_NAME = 'gallery-images';
+
 export const actuService = {
+  /**
+   * Récupère l'actualité unique (key: 'actu_intro')
+   */
   async getLatest(): Promise<ActuData | null> {
     const { data, error } = await supabase
       .from('actu')
       .select('*')
-      .order('created_at', { ascending: false }) // Tri par date de création (car 'id' n'existe pas)
-      .limit(1)
+      .eq('key', 'actu_intro')
       .maybeSingle();
 
     if (error) throw error;
     return data;
   },
 
-  async save(text: string, currentUrls: Record<string, string>, newFiles: Record<string, File | null>): Promise<void> {
+  /**
+   * Enregistre ou remplace l'actualité et ses images
+   */
+  async save(
+    text: string,
+    currentUrls: Record<string, string>,
+    newFiles: Record<string, File | null>
+  ): Promise<void> {
     const updatedUrls = { ...currentUrls };
 
-    // 1. Upload des nouvelles images vers le bucket de stockage Supabase
+    // 1. Traitement des 4 emplacements d'images
     for (let i = 1; i <= 4; i++) {
       const fieldKey = `actuimage${i}`;
       const currentFile = newFiles[fieldKey];
 
       if (currentFile) {
-        const fileExt = currentFile.name.split('.').pop();
-        const fileName = `actu-${i}-${Date.now()}.${fileExt}`;
+        // Nom fixe par emplacement pour écraser l'ancienne image
+        const fileExt = currentFile.name.split('.').pop() || 'jpg';
+        const fileName = `actu-slot-${i}.${fileExt}`;
 
+        // Upload avec l'option upsert: true pour remplacer le fichier sur Supabase Storage
         const { error: uploadError } = await supabase.storage
-          .from('gallery-images')
-          .upload(fileName, currentFile);
+          .from(BUCKET_NAME)
+          .upload(fileName, currentFile, {
+            upsert: true,
+            contentType: currentFile.type,
+          });
 
         if (uploadError) throw uploadError;
 
+        // Récupération de l'URL publique
         const { data: publicURLData } = supabase.storage
-          .from('gallery-images')
+          .from(BUCKET_NAME)
           .getPublicUrl(fileName);
 
-        updatedUrls[fieldKey] = publicURLData.publicUrl;
+        // Ajout d'un paramètre de timestamp (?t=...) pour forcer le navigateur à recharger l'image mise à jour
+        updatedUrls[fieldKey] = `${publicURLData.publicUrl}?t=${Date.now()}`;
       }
     }
 
-    // 2. Préparation des données pour la mise à jour
+    // 2. Clé fixe 'actu_intro' pour remplacer systématiquement l'ancienne entrée SQL
     const payload = {
-      key: 'actu_intro', // ✅ La clé primaire requise par la table actu
+      key: 'actu_intro',
       value: text,
       actuimage1: updatedUrls.actuimage1 || '',
       actuimage2: updatedUrls.actuimage2 || '',
@@ -51,11 +69,11 @@ export const actuService = {
       updated_at: new Date().toISOString(),
     };
 
-    // 3. Mise à jour (ou création) dans la base de données
-    const { error } = await supabase
+    // 3. Mise à jour (écrasement) de la ligne en base de données
+    const { error: dbError } = await supabase
       .from('actu')
       .upsert(payload, { onConflict: 'key' });
 
-    if (error) throw error;
-  }
+    if (dbError) throw dbError;
+  },
 };
