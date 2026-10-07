@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import { actuService } from '../../services/actu.service';
+import { getErrorMessage } from '../../utils/error';
 
 export function ActuEditor() {
   const [actuText, setActuText] = useState('');
@@ -35,14 +37,14 @@ export function ActuEditor() {
           actuimage4: data.actuimage4 || '',
         });
       }
-    } catch (err: any) {
-      console.error(err.message);
+    } catch (err: unknown) {
+      console.error(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSaving(true);
     try {
@@ -50,9 +52,9 @@ export function ActuEditor() {
       setActuText('');
       setActuImageUrls({ actuimage1: '', actuimage2: '', actuimage3: '', actuimage4: '' });
       setActuFiles({ actuimage1: null, actuimage2: null, actuimage3: null, actuimage4: null });
-      alert("Nouvelle actualité publiée avec succès !");
-    } catch (err: any) {
-      alert("Erreur : " + err.message);
+      alert('Nouvelle actualité publiée avec succès !');
+    } catch (err: unknown) {
+      alert('Erreur : ' + getErrorMessage(err));
     } finally {
       setSaving(false);
     }

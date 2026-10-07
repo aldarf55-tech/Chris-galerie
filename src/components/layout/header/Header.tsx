@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../../../supabaseClient';
+import { useAuth } from '../../../hooks/useAuth';
 import { Navbar } from '../navbar/Navbar.tsx';
 import styles from './Header.module.css';
-import type { ViewType } from '../../../App.tsx'; // Importez le type depuis App
+import type { ViewType } from '../../../types/navigation';
 import logoImg from '../../../assets/images/logocarre.jpg';
 
 interface HeaderProps {
@@ -10,21 +9,7 @@ interface HeaderProps {
 }
 
 export const Header = ({ onViewChange }: HeaderProps) => {
-  const [session, setSession] = useState<any>(null);
-
-  useEffect(() => {
-    // 1. Récupère la session au chargement du Header
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    // 2. Écoute en temps réel si tu te connectes ou déconnectes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const { session } = useAuth();
 
   return (
     <header className={styles.header}>

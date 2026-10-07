@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import type { Artwork } from '../types';
 import { artworksService } from '../services/artworks.service';
+import { getErrorMessage } from '../utils/error';
 
 import { AdminLogin } from './admin/AdminLogin';
 import { AdminTabs } from './admin/AdminTabs';
@@ -23,8 +24,8 @@ export function AdminUpload() {
     try {
       const data = await artworksService.getAll();
       setArtworks(data);
-    } catch (err: any) {
-      console.error(err.message);
+    } catch (err: unknown) {
+      console.error(getErrorMessage(err));
     } finally {
       setLoadingArtworks(false);
     }

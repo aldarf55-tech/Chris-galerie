@@ -1,23 +1,8 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
+import type { Artwork } from '../../types';
 import styles from './Lightbox.module.css';
 
-// 1. Mettez à jour ou créez l'interface Artwork propre à la Lightbox
-export interface Artwork {
-  id: number | string;
-  title: string;
-  thematique: string;
-  technique: string;
-  format: string;
-  originalPrice: number;
-  copyPrice: number;
-  category?: string;
-  image_url: string;
-  is_original_available: boolean;
-  is_print_available: boolean;
-}
-
-// 2. Définition des propriétés attendues par la Lightbox
 interface LightboxProps {
   artworksList: Artwork[];
   currentIndex: number;
@@ -28,15 +13,15 @@ interface LightboxProps {
 export const Lightbox = ({ artworksList, currentIndex, setCurrentIndex, onClose }: LightboxProps) => {
   const artwork = artworksList[currentIndex];
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     const nextIndex = currentIndex === 0 ? artworksList.length - 1 : currentIndex - 1;
     setCurrentIndex(nextIndex);
-  };
+  }, [currentIndex, artworksList, setCurrentIndex]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     const nextIndex = currentIndex === artworksList.length - 1 ? 0 : currentIndex + 1;
     setCurrentIndex(nextIndex);
-  };
+  }, [currentIndex, artworksList, setCurrentIndex]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -44,9 +29,10 @@ export const Lightbox = ({ artworksList, currentIndex, setCurrentIndex, onClose 
       if (e.key === 'ArrowLeft') handlePrevious();
       if (e.key === 'ArrowRight') handleNext();
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentIndex, artworksList]);
+  }, [handleNext, handlePrevious, onClose]);
 
   if (!artwork) return null;
 

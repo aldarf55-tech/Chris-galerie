@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { Lightbox } from '../components/ui/Lightbox';
-import type { Artwork } from '../components/ui/Lightbox';
+import type { Artwork } from '../types';
+import { getErrorMessage } from '../utils/error';
 import styles from './Gallery.module.css';
 
 
@@ -9,6 +10,7 @@ export const Gallery = () => {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('TOUT');
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
@@ -26,8 +28,8 @@ export const Gallery = () => {
 
       if (error) throw error;
       if (data) setArtworks(data);
-    } catch (error: any) {
-      console.error("Erreur lors de la récupération des œuvres :", error.message);
+    } catch (error: unknown) {
+      console.error('Erreur lors de la récupération des œuvres :', getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -106,19 +108,47 @@ const uniqueFilteredArtworks = getUniqueArtworksByTitle(filteredArtworks);
             />
           </div>
 
-          {/* BARRE DE FILTRES */}
-          <div className={styles.filters}>
-            {categories.map(cat => (
-              <button 
-                key={cat} 
-                className={`${styles.filterBtn} ${filter === cat ? styles.active : ''}`}
-                onClick={() => setFilter(cat)}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
         </>
+      )}
+
+      {artworks.length > 0 && (
+        <aside
+          className={`${styles.categoryDrawer} ${isCategoryMenuOpen ? styles.categoryDrawerOpen : ''}`}
+          aria-label="Filtrer par thématique"
+        >
+          <button
+            type="button"
+            className={styles.categoryToggle}
+            onClick={() => setIsCategoryMenuOpen(open => !open)}
+            aria-expanded={isCategoryMenuOpen}
+            aria-controls="gallery-category-list"
+            aria-label={isCategoryMenuOpen ? 'Fermer les thématiques' : 'Ouvrir les thématiques'}
+          >
+            <span className={styles.categoryToggleIcon} aria-hidden="true">
+              {isCategoryMenuOpen ? '›' : '‹'}
+            </span>
+            <span className={styles.categoryToggleLabel}>Thèmes</span>
+          </button>
+          <div className={styles.categoryPanel}>
+            <h2 className={styles.categoryTitle}>Thématiques</h2>
+            <div id="gallery-category-list" className={styles.categoryList}>
+              {categories.map(cat => (
+                <button
+                  type="button"
+                  key={cat}
+                  className={`${styles.filterBtn} ${filter === cat ? styles.active : ''}`}
+                  onClick={() => {
+                    setFilter(cat);
+                    setIsCategoryMenuOpen(false);
+                  }}
+                  aria-pressed={filter === cat}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+        </aside>
       )}
 
       {/* RÉSULTATS DE LA GALERIE */}

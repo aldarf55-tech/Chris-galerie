@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { artworksService } from '../../services/artworks.service';
+import { getErrorMessage } from '../../utils/error';
 
 interface ArtworkAddFormProps {
   onSuccess: () => void;
@@ -17,7 +19,7 @@ export function ArtworkAddForm({ onSuccess }: ArtworkAddFormProps) {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!file) return alert('Veuillez sélectionner une image.');
 
@@ -47,13 +49,13 @@ export function ArtworkAddForm({ onSuccess }: ArtworkAddFormProps) {
       setIsOriginalAvailable(true);
       setIsPrintAvailable(true);
       setFile(null);
-      
+
       const fileInput = document.getElementById('file-input') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
 
       onSuccess();
-    } catch (error: any) {
-      alert(`Erreur : ${error.message || JSON.stringify(error)}`);
+    } catch (error: unknown) {
+      alert('Erreur : ' + getErrorMessage(error));
     } finally {
       setUploading(false);
     }

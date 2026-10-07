@@ -60,6 +60,14 @@
   overflow: hidden;
   border-radius: 6px;
   background-color: #f5f5f5;
+  padding: 0;
+  border: 0;
+  cursor: zoom-in;
+}
+
+.imageWrapper:focus-visible {
+  outline: 3px solid #1e466e;
+  outline-offset: 3px;
 }
 
 .image {

@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import type { Artwork } from '../../types';
 import { artworksService } from '../../services/artworks.service';
+import { getErrorMessage } from '../../utils/error';
 
 interface ArtworkListProps {
   artworks: Artwork[];
@@ -10,6 +12,8 @@ interface ArtworkListProps {
 
 export function ArtworkList({ artworks, loading, onRefresh }: ArtworkListProps) {
   const [editingArtwork, setEditingArtwork] = useState<Artwork | null>(null);
+  const [originalPriceDraft, setOriginalPriceDraft] = useState('');
+  const [copyPriceDraft, setCopyPriceDraft] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
   const getUniqueArtworksByTitle = (list: Artwork[]) => {
@@ -34,28 +38,33 @@ export function ArtworkList({ artworks, loading, onRefresh }: ArtworkListProps) 
 
   const uniqueArtworks = getUniqueArtworksByTitle(searched);
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const handleUpdate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!editingArtwork) return;
+    if (!originalPriceDraft.trim() || !copyPriceDraft.trim()) return;
+
+    const originalPrice = Number(originalPriceDraft);
+    const copyPrice = Number(copyPriceDraft);
+    if (!Number.isFinite(originalPrice) || !Number.isFinite(copyPrice)) return;
 
     try {
-      await artworksService.update(editingArtwork);
-      alert("Œuvre mise à jour !");
+      await artworksService.update({ ...editingArtwork, originalPrice, copyPrice });
+      alert('Œuvre mise à jour !');
       setEditingArtwork(null);
       onRefresh();
-    } catch (err: any) {
-      alert("Erreur : " + err.message);
+    } catch (err: unknown) {
+      alert('Erreur : ' + getErrorMessage(err));
     }
   };
 
   const handleDelete = async (id: number | string, imageUrl: string) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette œuvre ?")) return;
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette œuvre ?')) return;
     try {
       await artworksService.delete(id, imageUrl);
-      alert("Œuvre supprimée !");
+      alert('Œuvre supprimée !');
       onRefresh();
-    } catch (err: any) {
-      alert("Erreur : " + err.message);
+    } catch (err: unknown) {
+      alert('Erreur : ' + getErrorMessage(err));
     }
   };
 
@@ -113,8 +122,8 @@ export function ArtworkList({ artworks, loading, onRefresh }: ArtworkListProps) 
             <label className="admin-label">Prix original (€)</label>
             <input
               type="number"
-              value={editingArtwork.originalPrice}
-              onChange={e => setEditingArtwork({ ...editingArtwork, originalPrice: parseFloat(e.target.value) || 0 })}
+              value={originalPriceDraft}
+              onChange={e => setOriginalPriceDraft(e.target.value)}
               required
               className="admin-input"
             />
@@ -124,8 +133,8 @@ export function ArtworkList({ artworks, loading, onRefresh }: ArtworkListProps) 
             <label className="admin-label">Prix copie (€)</label>
             <input
               type="number"
-              value={editingArtwork.copyPrice}
-              onChange={e => setEditingArtwork({ ...editingArtwork, copyPrice: parseFloat(e.target.value) || 0 })}
+              value={copyPriceDraft}
+              onChange={e => setCopyPriceDraft(e.target.value)}
               required
               className="admin-input"
             />
@@ -187,7 +196,14 @@ export function ArtworkList({ artworks, loading, onRefresh }: ArtworkListProps) 
                 </p>
               </div>
               <div className="admin-item-buttons">
-                <button onClick={() => setEditingArtwork(art)} className="admin-edit-btn">
+                <button
+                  onClick={() => {
+                    setEditingArtwork(art);
+                    setOriginalPriceDraft(String(art.originalPrice));
+                    setCopyPriceDraft(String(art.copyPrice));
+                  }}
+                  className="admin-edit-btn"
+                >
                   Modifier
                 </button>
                 <button onClick={() => handleDelete(art.id, art.image_url)} className="admin-delete-btn">

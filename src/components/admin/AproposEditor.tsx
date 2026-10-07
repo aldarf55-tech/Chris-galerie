@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import { aproposService } from '../../services/apropos.service';
+import { getErrorMessage } from '../../utils/error';
 
 export function AproposEditor() {
   const [introText, setIntroText] = useState('');
@@ -20,14 +22,14 @@ export function AproposEditor() {
         setIntroText(data.value || '');
         setImageUrl(data.image_url || '');
       }
-    } catch (err: any) {
-      console.error(err.message);
+    } catch (err: unknown) {
+      console.error(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSaving(true);
     try {
@@ -36,9 +38,9 @@ export function AproposEditor() {
       setFile(null);
       const input = document.getElementById('apropos-file-input') as HTMLInputElement;
       if (input) input.value = '';
-      alert("Mise à jour réussie !");
-    } catch (err: any) {
-      alert("Erreur : " + err.message);
+      alert('Mise à jour réussie !');
+    } catch (err: unknown) {
+      alert('Erreur : ' + getErrorMessage(err));
     } finally {
       setSaving(false);
     }
@@ -51,9 +53,9 @@ export function AproposEditor() {
       await aproposService.removeImage(introText);
       setImageUrl('');
       setFile(null);
-      alert("Image supprimée avec succès !");
-    } catch (err: any) {
-      alert("Erreur : " + err.message);
+      alert('Image supprimée avec succès !');
+    } catch (err: unknown) {
+      alert('Erreur : ' + getErrorMessage(err));
     } finally {
       setSaving(false);
     }

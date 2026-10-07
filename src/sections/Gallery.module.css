@@ -12,27 +12,17 @@
   margin: 0 0 0.5rem;
 }
 
-/* Filtres - Desktop */
-.filters {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 2.5rem;
-  flex-wrap: wrap; /* Sur grand écran, ils s'alignent proprement */
-}
-
 .filterBtn {
   color: #d06e2d;
-  padding: 0.5rem 1.5rem;
-  border: 1px solid #ccc;
+  padding: 0.65rem 1rem;
+  border: 1px solid rgba(208, 110, 45, 0.35);
   background: transparent;
   cursor: pointer;
-  border-radius: 20px;
+  border-radius: 8px;
   font-size: 0.95rem;
-  white-space: nowrap; /* Indispensable pour éviter que le texte du bouton se coupe */
+  text-align: left;
+  white-space: normal;
   transition: all 0.3s ease;
-  flex-shrink: 0; /* Empêche les boutons de s'écraser */
 }
 
 .filterBtn.active, .filterBtn:hover {
@@ -41,31 +31,91 @@
   border-color: #1e466e;
 }
 
-/* Adaptations spécifiques Smartphone */
-@media (max-width: 768px) {
-  .filters {
-    justify-content: flex-start; /* Aligne le premier bouton au bord gauche */
-    flex-wrap: nowrap; /* Interdit le retour à la ligne */
-    overflow-x: auto; /* Active le scroll horizontal */
-    padding: 0.5rem 1rem 1rem 1rem; /* Marge interne pour le confort de défilement */
-    margin-bottom: 0.5rem;
-    -webkit-overflow-scrolling: touch; /* Défilement ultra-fluide sur iOS */
-    scroll-snap-type: x mandatory; /* Effet d'aimant au défilement */
-    
-    /* Masquer la barre de scroll sur tous les navigateurs */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
-  }
+.categoryDrawer {
+  --category-toggle-height: 132px;
+  --category-anchor: clamp(130px, 24vh, 220px);
+  --category-panel-lift: 10px;
+  position: fixed;
+  z-index: 30;
+  top: calc(var(--category-anchor) - var(--category-toggle-height) / 2 - var(--category-panel-lift));
+  bottom: 0;
+  right: 0;
+  width: min(320px, calc(100vw - 42px));
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
 
-  .filters::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-  }
+.categoryDrawerOpen {
+  transform: translateX(0);
+}
 
-  .filterBtn {
-    scroll-snap-align: start;
-    padding: 0.4rem 1rem;
-    font-size: 0.88rem;
-  }
+.categoryToggle {
+  position: absolute;
+  top: calc(var(--category-toggle-height) / 2 + var(--category-panel-lift));
+  left: 0;
+  display: flex;
+  width: 42px;
+  height: var(--category-toggle-height);
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.8rem 0.35rem;
+  transform: translate(-100%, -50%);
+  border: 1px solid #1e466e;
+  border-right: 0;
+  border-radius: 70px 0 0 70px;
+  background: #1e466e;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: -4px 3px 12px rgba(0, 0, 0, 0.18);
+}
+
+.categoryToggle:focus-visible,
+.filterBtn:focus-visible {
+  outline: 3px solid #d06e2d;
+  outline-offset: 3px;
+}
+
+.categoryToggleIcon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.categoryToggleLabel {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.categoryPanel {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 1.25rem;
+  border: 1px solid rgba(30, 70, 110, 0.25);
+  border-right: 0;
+  border-radius: 16px 0 0 16px;
+  background: #fff;
+  box-shadow: -8px 5px 24px rgba(0, 0, 0, 0.16);
+}
+
+.categoryTitle {
+  margin: 0 0 1rem;
+  color: #1e466e;
+  font-size: 1.1rem;
+}
+
+.categoryList {
+  display: grid;
+  min-height: 0;
+  flex: 1;
+  gap: 0.5rem;
+  overflow-y: auto;
+  padding: 0.2rem;
 }
 
 /* Grille CSS Grid responsive */
@@ -178,6 +228,19 @@
 
 /* Adaptation Smartphone pour le champ de recherche */
 @media (max-width: 768px) {
+  .categoryDrawer {
+    --category-toggle-height: 118px;
+    width: min(290px, calc(100vw - 38px));
+  }
+
+  .categoryToggle {
+    width: 38px;
+  }
+
+  .categoryPanel {
+    padding: 1rem;
+  }
+
   .searchContainer {
     max-width: 100%;
     margin-bottom: 0.5rem;

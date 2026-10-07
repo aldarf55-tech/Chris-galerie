@@ -1,5 +1,5 @@
 import styles from './Footer.module.css';
-import type { ViewType } from '../../../App.tsx';
+import type { ViewType } from '../../../types/navigation';
 
 interface FooterProps {
   onViewChange: (view: ViewType) => void;

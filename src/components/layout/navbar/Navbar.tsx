@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styles from './Navbar.module.css';
-import type { ViewType } from '../../../App.tsx';
+import type { ViewType } from '../../../types/navigation';
 
 interface NavbarProps {
   onViewChange: (view: ViewType) => void;

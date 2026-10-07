@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { ImageLightbox } from '../components/ui/ImageLightbox';
 import styles from './Actu.module.css';
 
 export interface ActuItem {
@@ -16,6 +17,7 @@ export const Actu = () => {
   const [actu, setActu] = useState<ActuItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchActu = async () => {
@@ -82,18 +84,33 @@ export const Actu = () => {
         {images.length > 0 && (
           <div className={styles.imagesContainer} data-count={images.length}>
             {images.map((imgUrl, imgIndex) => (
-              <div key={`actu-img-${imgIndex}`} className={styles.imageWrapper}>
+              <button
+                type="button"
+                key={`actu-img-${imgIndex}`}
+                className={styles.imageWrapper}
+                onClick={() => setActiveImageIndex(imgIndex)}
+                aria-label={`Agrandir le visuel ${imgIndex + 1}`}
+              >
                 <img
                   src={imgUrl}
                   alt={`Visuel ${imgIndex + 1}`}
                   className={styles.image}
                   loading="lazy"
                 />
-              </div>
+              </button>
             ))}
           </div>
         )}
       </article>
+
+      {activeImageIndex !== null && (
+        <ImageLightbox
+          images={images}
+          currentIndex={activeImageIndex}
+          setCurrentIndex={setActiveImageIndex}
+          onClose={() => setActiveImageIndex(null)}
+        />
+      )}
     </section>
   );
 };
