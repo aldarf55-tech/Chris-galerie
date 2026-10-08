@@ -163,26 +163,33 @@ const uniqueFilteredArtworks = getUniqueArtworksByTitle(filteredArtworks);
 ) : (
   <div className={styles.grid}>
     {uniqueFilteredArtworks.map((art, index) => (
-      <div 
+    <article
         key={art.id} 
         className={styles.card}
-        onClick={() => setActiveIndex(index)}
-      >
-        <div className={styles.imageWrapper}>
-          <img 
-            src={art.image_url} 
-            alt={`${art.title ? `${art.title} - ` : ''}${art.thematique} (${art.technique}) - Christogr@phik`} 
-            className={styles.image} 
-          />
-        </div>
-        <div className={styles.overlay}>
-          <h3>{art.thematique}</h3>
-          <h4>{art.title}</h4>
-          <h5>{art.technique}</h5>
-        </div>
+      itemScope
+      itemType="https://schema.org/VisualArtwork"
+      onClick={() => setActiveIndex(index)}
+    >
+      <meta itemProp="creator" content="Christographik" />
+      <meta itemProp="artform" content="Dessin et illustration" />
+      <div className={styles.imageWrapper}>
+        <img 
+          src={art.image_url} 
+          alt={`${art.title ? `${art.title}, ` : ''}dessin ${art.thematique}, technique ${art.technique} - Christographik`}
+          className={styles.image} 
+          itemProp="image"
+          loading="lazy"
+        />
       </div>
-    ))}
-  </div>
+      <div className={styles.overlay}>
+        <h3 itemProp="genre">{art.thematique}</h3>
+        <h4 itemProp="name">{art.title || `Dessin ${art.thematique}`}</h4>
+        <h5 itemProp="artMedium">{art.technique}</h5>
+        <meta itemProp="artworkSurface" content={art.format} />
+      </div>
+    </article>
+  ))}
+</div>
 )}
 
     {/* LIGHTBOX */}
