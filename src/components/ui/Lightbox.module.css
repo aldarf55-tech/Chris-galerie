@@ -89,6 +89,11 @@
   display: block;
 }
 
+.lightboxLikeButton {
+  align-self: flex-end;
+  margin-top: 0.75rem;
+}
+
 /* Le bloc d'informations : placé sous l'image, toujours visible */
 .info {
   width: 100%;

@@ -145,8 +145,25 @@
 }
 
 .imageWrapper {
+  position: relative;
   aspect-ratio: 4 / 3; /* Force un ratio pour harmoniser la grille */
   overflow: hidden;
+}
+
+.galleryLikeButton {
+  margin: 0.45rem 0.6rem 0.45rem auto;
+}
+
+.likeFooter {
+  display: flex;
+  min-height: 3.2rem;
+  align-items: center;
+}
+
+.likesError {
+  margin: 0 auto 1rem;
+  color: #a12632;
+  font-size: 0.9rem;
 }
 
 .image {

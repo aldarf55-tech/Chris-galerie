@@ -1,6 +1,8 @@
 import { useCallback, useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { Artwork } from '../../types';
+import type { ArtworkLikeState } from '../../services/artworkLikes.service';
+import { ArtworkLikeButton } from './ArtworkLikeButton';
 import styles from './Lightbox.module.css';
 
 interface LightboxProps {
@@ -8,9 +10,22 @@ interface LightboxProps {
   currentIndex: number;
   setCurrentIndex: Dispatch<SetStateAction<number | null>>;
   onClose: () => void;
+  likeStates: Map<string, ArtworkLikeState>;
+  likesLoading: boolean;
+  pendingLikes: Set<string>;
+  onToggleLike: (artworkId: number | string) => void;
 }
 
-export const Lightbox = ({ artworksList, currentIndex, setCurrentIndex, onClose }: LightboxProps) => {
+export const Lightbox = ({
+  artworksList,
+  currentIndex,
+  setCurrentIndex,
+  onClose,
+  likeStates,
+  likesLoading,
+  pendingLikes,
+  onToggleLike,
+}: LightboxProps) => {
   const artwork = artworksList[currentIndex];
 
   const handlePrevious = useCallback(() => {
@@ -63,6 +78,13 @@ export const Lightbox = ({ artworksList, currentIndex, setCurrentIndex, onClose 
               : <><strong>ORIGINAL</strong> <strong>VENDU</strong></>}
           </p>
         </div>
+        <ArtworkLikeButton
+          className={styles.lightboxLikeButton}
+          count={likeStates.get(String(artwork.id))?.count ?? (likesLoading ? null : 0)}
+          liked={likeStates.get(String(artwork.id))?.liked ?? false}
+          disabled={likesLoading || pendingLikes.has(String(artwork.id))}
+          onToggle={() => onToggleLike(artwork.id)}
+        />
       </div>
 
       <button className={`${styles.navBtn} ${styles.nextBtn}`} onClick={(e) => { e.stopPropagation(); handleNext(); }}>

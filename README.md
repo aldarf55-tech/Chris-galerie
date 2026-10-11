@@ -2,6 +2,12 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Mentions J’aime de la galerie
+
+Les visiteurs peuvent ajouter ou retirer un cœur sans créer de compte. Leur identifiant anonyme est conservé dans le stockage local du navigateur ; leur choix est donc reconnu sur ce navigateur, mais pas sur un autre appareil ou après l’effacement de ses données.
+
+Pour activer les compteurs partagés, exécutez le script `supabase/migrations/20261011100000_artwork_likes.sql` dans l’éditeur SQL du projet Supabase. Il crée la table des cœurs et les fonctions utilisées par le site. Les compteurs sont publics ; sans compte ni vérification d’identité, ils ne peuvent pas empêcher les visiteurs de contourner la limite en effaçant leurs données ou en falsifiant des requêtes.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)

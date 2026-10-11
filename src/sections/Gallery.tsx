@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { Lightbox } from '../components/ui/Lightbox';
+import { ArtworkLikeButton } from '../components/ui/ArtworkLikeButton';
+import { artworkLikesService, type ArtworkLikeState } from '../services/artworkLikes.service';
 import type { Artwork } from '../types';
 import { getErrorMessage } from '../utils/error';
 import styles from './Gallery.module.css';
@@ -13,10 +15,72 @@ export const Gallery = () => {
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [visitorId, setVisitorId] = useState<string | null>(null);
+  const [likes, setLikes] = useState<Map<string, ArtworkLikeState>>(new Map());
+  const [pendingLikes, setPendingLikes] = useState<Set<string>>(new Set());
+  const [likesLoading, setLikesLoading] = useState(true);
+  const [likesError, setLikesError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchArtworks();
   }, []);
+
+  useEffect(() => {
+    if (artworks.length === 0) {
+      setLikesLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchLikes = async () => {
+      try {
+        const id = artworkLikesService.getVisitorId();
+        const likeStates = await artworkLikesService.getForArtworks(
+          artworks.map(artwork => artwork.id),
+          id,
+        );
+        if (cancelled) return;
+
+        setVisitorId(id);
+        setLikes(likeStates);
+        setLikesError(null);
+      } catch (error: unknown) {
+        if (cancelled) return;
+        console.error('Erreur lors du chargement des mentions J’aime :', getErrorMessage(error));
+        setLikesError('Impossible de charger les cœurs. Veuillez réessayer plus tard.');
+      } finally {
+        if (!cancelled) setLikesLoading(false);
+      }
+    };
+
+    setLikesLoading(true);
+    fetchLikes();
+    return () => {
+      cancelled = true;
+    };
+  }, [artworks]);
+
+  const handleToggleLike = async (artworkId: number | string) => {
+    if (!visitorId || pendingLikes.has(String(artworkId))) return;
+
+    const id = String(artworkId);
+    setPendingLikes(current => new Set(current).add(id));
+    try {
+      const likeState = await artworkLikesService.toggle(artworkId, visitorId);
+      setLikes(current => new Map(current).set(id, likeState));
+      setLikesError(null);
+    } catch (error: unknown) {
+      console.error('Erreur lors de la mise à jour du cœur :', getErrorMessage(error));
+      setLikesError('Le cœur n’a pas pu être mis à jour. Veuillez réessayer.');
+    } finally {
+      setPendingLikes(current => {
+        const next = new Set(current);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
 
   const fetchArtworks = async () => {
     try {
@@ -94,6 +158,8 @@ const uniqueFilteredArtworks = getUniqueArtworksByTitle(filteredArtworks);
   return (
     <section className={styles.gallerySection}>
       <h1 className={styles.title}>GALERIE</h1>
+
+      {likesError && <p className={styles.likesError} role="alert">{likesError}</p>}
 
       {artworks.length > 0 && (
         <>
@@ -180,12 +246,21 @@ const uniqueFilteredArtworks = getUniqueArtworksByTitle(filteredArtworks);
           itemProp="image"
           loading="lazy"
         />
-      </div>
       <div className={styles.overlay}>
         <h3 itemProp="genre">{art.thematique}</h3>
         <h4 itemProp="name">{art.title || `Dessin ${art.thematique}`}</h4>
         <h5 itemProp="artMedium">{art.technique}</h5>
         <meta itemProp="artworkSurface" content={art.format} />
+      </div>
+      </div>
+      <div className={styles.likeFooter}>
+        <ArtworkLikeButton
+          className={styles.galleryLikeButton}
+          count={likes.get(String(art.id))?.count ?? (likesLoading || !visitorId ? null : 0)}
+          liked={likes.get(String(art.id))?.liked ?? false}
+          disabled={likesLoading || !visitorId || pendingLikes.has(String(art.id))}
+          onToggle={() => handleToggleLike(art.id)}
+        />
       </div>
     </article>
   ))}
@@ -199,6 +274,10 @@ const uniqueFilteredArtworks = getUniqueArtworksByTitle(filteredArtworks);
         currentIndex={activeIndex}
         setCurrentIndex={setActiveIndex}
         onClose={() => setActiveIndex(null)} 
+        likeStates={likes}
+        likesLoading={likesLoading || !visitorId}
+        pendingLikes={pendingLikes}
+        onToggleLike={handleToggleLike}
       />
     )}
     
